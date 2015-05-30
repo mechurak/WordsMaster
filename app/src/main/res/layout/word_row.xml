@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent">
+
+
+    <CheckBox
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/chk"
+        android:layout_gravity="center"
+        android:layout_weight="1" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="8">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="tempSpelling"
+            android:id="@+id/spelling" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="tempPhonetic"
+            android:id="@+id/phonetic"
+            android:layout_marginLeft="10dp" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:id="@+id/meaning"
+            android:layout_height="wrap_content"
+            android:text="tempMeaning"
+            android:layout_marginLeft="10dp" />
+    </LinearLayout>
+
+    <Button
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="p"
+        android:id="@+id/button"
+        android:layout_gravity="center"
+        android:layout_weight="1" />
+</LinearLayout>
