@@ -2,9 +2,6 @@ package com.shimnssso.wordsmaster.data;
 
 import com.shimnssso.wordsmaster.R;
 
-/**
- * Created by Shim on 2015-05-26.
- */
 public class DbMeta {
     public static final String DATABASE_NAME = "word.db";
     public static final int DATABASE_VERSION = 1;
@@ -22,8 +19,8 @@ public class DbMeta {
 
         public static final String ID = "_id";
         public static final String SPELLING = "spelling";
-        public static final String MEANING = "meaning";
         public static final String PHONETIC = "phonetic";
+        public static final String MEANING = "meaning";
         public static final String AUDIO_PATH = "audio";
         public static final String CATEGORY = "category";
 

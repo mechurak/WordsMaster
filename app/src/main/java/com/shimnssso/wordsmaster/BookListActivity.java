@@ -1,6 +1,7 @@
 package com.shimnssso.wordsmaster;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,6 +40,11 @@ public class BookListActivity extends Activity {
                 Cursor c = (Cursor) adapter.getItem(position);
                 Log.d(TAG, "id from cursor = " + c.getInt(0));
                 Log.d(TAG, "id " + id);
+                Log.d(TAG, "title " + c.getString(1));
+
+                Intent intent=new Intent(BookListActivity.this, WordListActivity.class);
+                intent.putExtra("id", id);
+                startActivity(intent);
             }
         });
     }

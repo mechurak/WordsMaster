@@ -9,10 +9,6 @@ import com.shimnssso.wordsmaster.data.DbMeta.CategoryTableMeta;
 import com.shimnssso.wordsmaster.data.DbMeta.WordTableMeta;
 
 
-
-/**
- * Created by Shim on 2015-05-26.
- */
 public class DbHelper extends SQLiteOpenHelper {
     private static final String TAG = "DbHelper";
 
@@ -70,7 +66,7 @@ public class DbHelper extends SQLiteOpenHelper {
         return db.query(CategoryTableMeta.TABLE_NAME, null, null, null, null, null, null);
     }
 
-    public Cursor getBook(int id) {
+    public Cursor getBook(long id) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.query(WordTableMeta.TABLE_NAME, null, WordTableMeta.CATEGORY+"="+id, null, null, null, null);
     }
