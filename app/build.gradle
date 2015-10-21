@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId "com.shimnssso.wordsmaster"
@@ -20,7 +20,37 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:22.1.1'
-    compile 'com.google.android.gms:play-services:7.3.0'
+    //compile 'com.google.android.gms:play-services:7.5.0'
+    compile 'com.google.android.gms:play-services-identity:7.5.0'
+    //compile 'com.google.android.gms:play-services-drive:7.5.0'
+
+//    compile files('libs/gdata-analytics-2.1.jar')
+//    compile files('libs/gdata-appsforyourdomain-1.0.jar')
+    compile files('libs/gdata-base-1.0.jar')
+//    compile files('libs/gdata-blogger-2.0.jar')
+//    compile files('libs/gdata-books-1.0.jar')
+//    compile files('libs/gdata-calendar-2.0.jar')
+//    compile files('libs/gdata-client-1.0.jar')
+//    compile files('libs/gdata-codesearch-2.0.jar')
+//    compile files('libs/gdata-contacts-3.0.jar')
+    compile files('libs/gdata-core-1.0.jar')
+//    compile files('libs/gdata-docs-3.0.jar')
+//    compile files('libs/gdata-finance-2.0.jar')
+//    compile files('libs/gdata-gtt-2.0.jar')
+//    compile files('libs/gdata-health-2.0.jar')
+//    compile files('libs/gdata-maps-2.0.jar')
+//    compile files('libs/gdata-media-1.0.jar')
+//    compile files('libs/gdata-photos-2.0.jar')
+//    compile files('libs/gdata-projecthosting-2.1.jar')
+//    compile files('libs/gdata-sidewiki-2.0.jar')
+//    compile files('libs/gdata-sites-2.0.jar')
+    compile files('libs/gdata-spreadsheet-3.0.jar')
+//    compile files('libs/gdata-webmastertools-2.0.jar')
+//    compile files('libs/gdata-youtube-2.0.jar')
+    compile files('libs/guava-11.0.2.jar')
+//    compile files('libs/jsr305.jar')
+//    compile files('libs/mail.jar')
+
 }

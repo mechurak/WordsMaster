@@ -4,9 +4,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
-import com.shimnssso.wordsmaster.data.DbMeta.CategoryTableMeta;
+import com.shimnssso.wordsmaster.data.DbMeta.GlobalTableMeta;
 import com.shimnssso.wordsmaster.data.DbMeta.WordTableMeta;
+
+import java.util.ArrayList;
 
 
 public class DbHelper extends SQLiteOpenHelper {
@@ -16,9 +19,16 @@ public class DbHelper extends SQLiteOpenHelper {
     private static DbHelper mInstance = null;
 
     public static DbHelper getInstance(Context context) {
+        // for debug
+        //context.deleteDatabase(DbMeta.DATABASE_NAME);
+
         if (mInstance == null) {
             mInstance = new DbHelper(context);
         }
+        return mInstance;
+    }
+
+    public static DbHelper getInstance() {
         return mInstance;
     }
 
@@ -29,140 +39,89 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE " + CategoryTableMeta.TABLE_NAME + " ("
-                + CategoryTableMeta.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + CategoryTableMeta.TITLE + " TEXT, "
-                + CategoryTableMeta.SIZE + " INTEGER )"
+        db.execSQL( "CREATE TABLE " + GlobalTableMeta.TABLE_NAME + " ("
+                + GlobalTableMeta.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + GlobalTableMeta.MODE + " INTEGER, "
+                + GlobalTableMeta.CUR_ID + " INTEGER"
+                + " )"
         );
+        db.execSQL("INSERT INTO " + GlobalTableMeta.TABLE_NAME + " VALUES (null,0,0)");
 
-        db.execSQL( "CREATE TABLE " + WordTableMeta.TABLE_NAME + " ("
+        db.execSQL("CREATE TABLE " + WordTableMeta.TABLE_NAME + " ("
                 + WordTableMeta.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + WordTableMeta.SPELLING + " TEXT, "
                 + WordTableMeta.PHONETIC + " TEXT, "
                 + WordTableMeta.MEANING + " TEXT, "
                 + WordTableMeta.AUDIO_PATH + " TEXT, "
-                + WordTableMeta.CATEGORY + " INTEGER )"
+                + WordTableMeta.CATEGORY + " TEXT"
+                + " )"
         );
-
-        int size = 0;
         for(String[] word : DbMeta.tempBook) {
             db.execSQL( "INSERT INTO " + WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?)", word);
-            size++;
         }
-
-        db.execSQL( "INSERT INTO " + CategoryTableMeta.TABLE_NAME + " VALUES (null, 'default'," + size + ")"
-        );
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS " + CategoryTableMeta.TABLE_NAME);
+        db.execSQL("DROP TABLE IF EXISTS " + GlobalTableMeta.TABLE_NAME);
         db.execSQL("DROP TABLE IF EXISTS " + WordTableMeta.TABLE_NAME);
         onCreate(db);
     }
 
     public Cursor getBookList() {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(CategoryTableMeta.TABLE_NAME, null, null, null, null, null, null);
+        String[] columns = {
+                WordTableMeta.ID,
+                WordTableMeta.CATEGORY,
+                "COUNT(*)"
+        };
+        return db.query(WordTableMeta.TABLE_NAME, columns, null, null, WordTableMeta.CATEGORY, null, null);
     }
 
-    public Cursor getBook(long id) {
+    public Cursor getWordList(String book) {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(WordTableMeta.TABLE_NAME, null, WordTableMeta.CATEGORY+"="+id, null, null, null, null);
+        return db.query(WordTableMeta.TABLE_NAME, null, WordTableMeta.CATEGORY+"='"+book+"'", null, null, null, null);
     }
 
 
-
-
-
-
-    /*
-
-    // 새로운 Contact 함수 추가
-    public void addContact(Contact contact) {
+    public void deleteWords(ArrayList<String> titleList) {
         SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, contact.getName()); // Contact Name
-        values.put(KEY_PH_NO, contact.getPhoneNumber()); // Contact Phone
-
-        // Inserting Row
-        db.insert(TABLE_CONTACTS, null, values);
-        db.close(); // Closing database connection
-    }
-
-    // id 에 해당하는 Contact 객체 가져오기
-    public Contact getContact(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.query(TABLE_CONTACTS, new String[] { KEY_ID,
-                        KEY_NAME, KEY_PH_NO }, KEY_ID + "=?",
-                new String[] { String.valueOf(id) }, null, null, null, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        Contact contact = new Contact(Integer.parseInt(cursor.getString(0)),
-                cursor.getString(1), cursor.getString(2));
-        // return contact
-        return contact;
-    }
-
-    // 모든 Contact 정보 가져오기
-    public List<contact> getAllContacts() {
-        List<contact> contactList = new ArrayList<contact>();
-        // Select All Query
-        String selectQuery = "SELECT  * FROM " + TABLE_CONTACTS;
-
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);
-
-        // looping through all rows and adding to list
-        if (cursor.moveToFirst()) {
-            do {
-                Contact contact = new Contact();
-                contact.setID(Integer.parseInt(cursor.getString(0)));
-                contact.setName(cursor.getString(1));
-                contact.setPhoneNumber(cursor.getString(2));
-                // Adding contact to list
-                contactList.add(contact);
-            } while (cursor.moveToNext());
+        StringBuilder sb = new StringBuilder();
+        sb.append("DELETE FROM ");
+        sb.append(WordTableMeta.TABLE_NAME);
+        sb.append(" WHERE ");
+        for (int i=0; i<titleList.size()-1; i++) {
+            sb.append(WordTableMeta.CATEGORY);
+            sb.append("='" + titleList.get(i) + "' or ");
         }
-
-        // return contact list
-        return contactList;
+        sb.append(WordTableMeta.CATEGORY);
+        sb.append("='" + titleList.get(titleList.size()-1) + "'");
+        db.execSQL(sb.toString());
     }
 
-    //Contact 정보 업데이트
-    public int updateContact(Contact contact) {
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(KEY_NAME, contact.getName());
-        values.put(KEY_PH_NO, contact.getPhoneNumber());
-
-        // updating word_row
-        return db.update(TABLE_CONTACTS, values, KEY_ID + " = ?",
-                new String[] { String.valueOf(contact.getID()) });
-    }
-
-    // Contact 정보 삭제하기
-    public void deleteContact(Contact contact) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_CONTACTS, KEY_ID + " = ?",
-                new String[] { String.valueOf(contact.getID()) });
-        db.close();
-    }
-
-    // Contact 정보 숫자
-    public int getContactsCount() {
-        String countQuery = "SELECT  * FROM " + TABLE_CONTACTS;
+    public int getMode() {
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
-        cursor.close();
-
-        // return count
-        return cursor.getCount();
+        Cursor c = db.rawQuery("SELECT " + GlobalTableMeta.MODE + " FROM " + GlobalTableMeta.TABLE_NAME, null);
+        c.moveToFirst();
+        int ret = c.getInt(0);
+        c.close();
+        return ret;
+    }
+    public void setMode(int mode) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("UPDATE " + GlobalTableMeta.TABLE_NAME + " SET " + GlobalTableMeta.MODE + "=" + mode);
     }
 
-    */
+    public int getCurrentWordId() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor c = db.rawQuery("SELECT " + GlobalTableMeta.CUR_ID + " FROM " + GlobalTableMeta.TABLE_NAME, null);
+        c.moveToFirst();
+        int ret = c.getInt(0);
+        c.close();
+        return ret;
+    }
+    public void setCurrentWordId(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("UPDATE " + GlobalTableMeta.TABLE_NAME + " SET " + GlobalTableMeta.CUR_ID + "=" + id);
+    }
 }

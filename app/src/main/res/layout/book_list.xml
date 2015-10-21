@@ -18,22 +18,10 @@
         android:layout_gravity="center_horizontal"
         android:layout_weight="8" />
 
-    <LinearLayout
-        android:orientation="horizontal"
+    <Button
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New Button"
-            android:id="@+id/button3" />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="New Button"
-            android:id="@+id/button4" />
-    </LinearLayout>
+        android:text="Import from google sheets"
+        android:id="@+id/btn_import"
+        android:layout_weight="1"/>
 </LinearLayout>
