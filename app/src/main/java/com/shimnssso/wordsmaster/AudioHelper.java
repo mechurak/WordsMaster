@@ -1,5 +1,6 @@
 package com.shimnssso.wordsmaster;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.util.Log;
@@ -44,12 +45,20 @@ public class AudioHelper {
     public static boolean play(String path) {
         mPlayer = new MediaPlayer();
         try {
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mPlayer.setDataSource(path);
             mPlayer.prepare();
+            mPlayer.start();
+            mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    mPlayer.release();
+                    mPlayer = null;
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mPlayer.start();
         return true;
     }
 }
