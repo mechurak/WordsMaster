@@ -155,7 +155,6 @@
         <Button
             android:layout_width="40dp"
             android:layout_height="fill_parent"
-            android:text="&lt;"
             android:id="@+id/btn_word_prev"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"
@@ -167,7 +166,6 @@
         <Button
             android:layout_width="40dp"
             android:layout_height="fill_parent"
-            android:text=">"
             android:id="@+id/btn_word_next"
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
@@ -175,6 +173,15 @@
             android:layout_above="@+id/linearLayout_chkbox"
             android:alpha="0.2" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="1/10"
+            android:id="@+id/txt_word_progress"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
 
     </RelativeLayout>
 

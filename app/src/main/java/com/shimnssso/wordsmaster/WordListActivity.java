@@ -18,8 +18,9 @@ import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.data.WordCursorAdapter;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class WordListActivity extends Activity {
     private final static String TAG = "WordListActivity";
@@ -37,6 +38,7 @@ public class WordListActivity extends Activity {
     TextView txt_word_spelling;
     TextView txt_word_phonetic;
     TextView txt_word_meaning;
+    TextView txt_word_progress;
     Button btn_word_next;
     Button btn_word_prev;
     Button btn_word_record;
@@ -73,10 +75,11 @@ public class WordListActivity extends Activity {
                 if (mMode == WORD_MODE_LIST) {
                     listView.setVisibility(View.VISIBLE);
                     mCardlayout.setVisibility(View.GONE);
-                }
-                else {
+                    listView.smoothScrollToPosition(mCurrentId);
+                } else {
                     listView.setVisibility(View.GONE);
                     mCardlayout.setVisibility(View.VISIBLE);
+                    refreshCurrentCard();
                 }
             }
         });
@@ -86,40 +89,28 @@ public class WordListActivity extends Activity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Cursor c = (Cursor) adapter.getItem(position);
-                Log.d(TAG, "id from cursor = " + c.getInt(0));
-                Log.d(TAG, "id " + id);
-
-                Log.d(TAG, "spelling " + c.getString(1));
-                Log.d(TAG, "phonetic " + c.getString(2));
-                Log.d(TAG, "meaning " + c.getString(3));
-                Log.d(TAG, "audio " + c.getString(4));
-                Log.d(TAG, "category " + c.getString(5));
+                mCurrentId = position;
+                btn_change_mode.performClick();
             }
         });
 
 
         //==========================================================
         mCardlayout = (RelativeLayout)findViewById(R.id.layout_word);
+
         txt_word_spelling = (TextView)findViewById(R.id.txt_word_spelling);
         txt_word_phonetic = (TextView)findViewById(R.id.txt_word_phonetic);
         txt_word_meaning = (TextView)findViewById(R.id.txt_word_meaning);
+
+        txt_word_progress = (TextView)findViewById(R.id.txt_word_progress);
+
         btn_word_next = (Button)findViewById(R.id.btn_word_next);
         btn_word_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mCurrentId++;
                 if (mCurrentId >= adapter.getCount()) mCurrentId = 0;
-                Cursor c = (Cursor) adapter.getItem(mCurrentId);
-                txt_word_spelling.setText(c.getString(1));
-                txt_word_phonetic.setText(c.getString(2));
-                txt_word_meaning.setText(c.getString(3));
-
-                try {
-                    openFileInput(getFilesDir().getAbsolutePath() + File.separator + c.getString(1) + ".mp3");
-                } catch (FileNotFoundException e) {
-                    btn_word_play.setVisibility(View.INVISIBLE);
-                }
+                refreshCurrentCard();
             }
         });
         btn_word_prev = (Button)findViewById(R.id.btn_word_prev);
@@ -127,14 +118,11 @@ public class WordListActivity extends Activity {
             @Override
             public void onClick(View v) {
                 mCurrentId--;
-                if (mCurrentId < 0) mCurrentId = adapter.getCount()-1;
-                Cursor c = (Cursor) adapter.getItem(mCurrentId);
-                txt_word_spelling.setText(c.getString(1));
-                txt_word_phonetic.setText(c.getString(2));
-                txt_word_meaning.setText(c.getString(3));
+                if (mCurrentId < 0) mCurrentId = adapter.getCount() - 1;
+                refreshCurrentCard();
             }
         });
-        chk_word_spelling = (CheckBox)findViewById(R.id.chk_word_spelling);
+        chk_word_spelling = (CheckBox) findViewById(R.id.chk_word_spelling);
         chk_word_spelling.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -144,7 +132,7 @@ public class WordListActivity extends Activity {
                     txt_word_spelling.setVisibility(View.GONE);
             }
         });
-        chk_word_phonetic = (CheckBox)findViewById(R.id.chk_word_phonetic);
+        chk_word_phonetic = (CheckBox) findViewById(R.id.chk_word_phonetic);
         chk_word_phonetic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -171,17 +159,13 @@ public class WordListActivity extends Activity {
             public void onClick(View v) {
                 if (mIsRecording) {
                     AudioHelper.stopRecord();
+                    refreshCurrentCard();
                     btn_word_record.setText("RECORD");
                     mIsRecording = false;
                 } else {
                     Cursor c = (Cursor) adapter.getItem(mCurrentId);
                     String spelling = c.getString(1);
-
                     AudioHelper.startRecord(getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3");
-                    Log.d(TAG, "getFilesDir().getAbsolutePath() : " + getFilesDir().getAbsolutePath());
-                    Log.d(TAG, "File.separator : " + File.separator);
-                    Log.d(TAG, "path: " + getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3");
-
                     btn_word_record.setText("STOP");
                     mIsRecording = true;
                 }
@@ -200,19 +184,16 @@ public class WordListActivity extends Activity {
             }
         });
 
-        mMode = mDbHelper.getMode();
-        mCurrentId = mDbHelper.getCurrentWordId();
-
-        Cursor c = (Cursor) adapter.getItem(mCurrentId);
-        txt_word_spelling.setText(c.getString(1));
-        txt_word_phonetic.setText(c.getString(2));
-        txt_word_meaning.setText(c.getString(3));
+        refreshCurrentCard();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
+
+        mMode = mDbHelper.getMode();
+        mCurrentId = mDbHelper.getCurrentWordId();
 
         if (mMode == WORD_MODE_LIST) {
             listView.setVisibility(View.VISIBLE);
@@ -237,5 +218,24 @@ public class WordListActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "onDestroy");
+    }
+
+    private void refreshCurrentCard() {
+        Cursor c = (Cursor) adapter.getItem(mCurrentId);
+        txt_word_spelling.setText(c.getString(1));
+        txt_word_phonetic.setText(c.getString(2));
+        txt_word_meaning.setText(c.getString(3));
+
+        txt_word_progress.setText( (mCurrentId+1) + "/" + adapter.getCount() );
+
+        try {
+            FileInputStream fis = new FileInputStream (new File(getFilesDir().getAbsolutePath() + File.separator + c.getString(1) + ".mp3"));
+            fis.close();
+            btn_word_play.setVisibility(View.VISIBLE);
+        } catch (FileNotFoundException e) {
+            btn_word_play.setVisibility(View.INVISIBLE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

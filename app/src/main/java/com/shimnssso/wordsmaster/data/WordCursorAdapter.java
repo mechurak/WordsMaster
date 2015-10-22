@@ -11,16 +11,24 @@ import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
+import com.shimnssso.wordsmaster.AudioHelper;
 import com.shimnssso.wordsmaster.R;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class WordCursorAdapter extends CursorAdapter {
     private static final String TAG = "WordCursorAdapter";
+    private Context mContext;
 
     LayoutInflater inflater;
 
     public WordCursorAdapter(Context context, Cursor c, int flags){
         super(context,c,flags);
         inflater = LayoutInflater.from(context);
+        mContext = context;
     }
 
     @Override
@@ -33,7 +41,7 @@ public class WordCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        final long row_id = cursor.getLong(0);
+        final String word = cursor.getString(1);
         CheckBox chk = (CheckBox) view.findViewById(R.id.chk);
         TextView spelling = (TextView) view.findViewById(R.id.spelling);
         TextView phonetic = (TextView) view.findViewById(R.id.phonetic);
@@ -47,8 +55,18 @@ public class WordCursorAdapter extends CursorAdapter {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i(TAG, "button clicked. current id: " + row_id);
+                AudioHelper.play(mContext.getFilesDir().getAbsolutePath() + File.separator + word + ".mp3");
             }
         });
+
+        try {
+            FileInputStream fis = new FileInputStream (new File(mContext.getFilesDir().getAbsolutePath() + File.separator + word + ".mp3"));
+            fis.close();
+            button.setVisibility(View.VISIBLE);
+        } catch (FileNotFoundException e) {
+            button.setVisibility(View.INVISIBLE);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
