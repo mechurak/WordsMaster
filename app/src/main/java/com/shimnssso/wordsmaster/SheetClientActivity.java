@@ -3,6 +3,7 @@ package com.shimnssso.wordsmaster;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,6 +17,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,6 +74,10 @@ public class SheetClientActivity extends Activity {
     List<SpreadsheetEntry> mSpreadsheets;
     ArrayList<BookAdapter.Book> mBookList;
 
+    ProgressDialog mDialog;
+    int mPosDialog = 0;
+    ProgressBar mProgressBar;
+
     private void pickUserAccount() {
         String[] accountTypes = new String[]{"com.google"};
         Intent intent = AccountPicker.newChooseAccountIntent(null, null,
@@ -112,6 +118,9 @@ public class SheetClientActivity extends Activity {
         btn_import_sheet = (Button)findViewById(R.id.btn_import_sheet);
         layout_for_book = (LinearLayout)findViewById(R.id.layout_for_book);
         layout_for_book.setVisibility(View.GONE);
+
+        mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
+        mProgressBar.setVisibility(View.INVISIBLE);
 
         mBookList = new ArrayList<>();
     }
@@ -193,6 +202,15 @@ public class SheetClientActivity extends Activity {
 
     public class GetSheetListTask extends AsyncTask<Void, Void, Void> {
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            mProgressBar.setVisibility(View.VISIBLE);
+            mProgressBar.setIndeterminate(true);
+            mProgressBar.setMax(100);
+        }
+
         /**
          * Executes the asynchronous job. This runs when you call execute()
          * on the AsyncTask instance.
@@ -254,6 +272,13 @@ public class SheetClientActivity extends Activity {
             }
             return null;
         }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
     }
 
 
@@ -263,6 +288,15 @@ public class SheetClientActivity extends Activity {
 
         public GetBookListTask (SpreadsheetEntry sheet) {
             mSheet = sheet;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            mProgressBar.setVisibility(View.VISIBLE);
+            mProgressBar.setIndeterminate(true);
+            mProgressBar.setMax(100);
         }
 
         /**
@@ -302,7 +336,7 @@ public class SheetClientActivity extends Activity {
                         Log.d(TAG, "cur : " + cell.getCell().getInputValue());
                         curStr = cell.getCell().getInputValue();
                         if (!curStr.equals(prevStr) && !prevStr.equals("(prev)")){
-                            BookAdapter.Book book = new BookAdapter.Book(prevStr, size+1);
+                            BookAdapter.Book book = new BookAdapter.Book(prevStr, size);
                             mBookList.add(book);
                             Log.d(TAG, "added " + book.getTitle() + " " + book.getSize());
                             size = 0;
@@ -313,7 +347,7 @@ public class SheetClientActivity extends Activity {
                         prevStr = curStr;
                     }
                     // add last book
-                    BookAdapter.Book book = new BookAdapter.Book(prevStr, size+1);
+                    BookAdapter.Book book = new BookAdapter.Book(prevStr, size);
                     mBookList.add(book);
                     Log.d(TAG, "added " + book.getTitle() + " " + book.getSize());
 
@@ -347,7 +381,8 @@ public class SheetClientActivity extends Activity {
                                 @Override
                                 public void onClick(View v) {
                                     HashSet<String> checkedTitle = mBookAdapter.getCheckedBook();
-                                    new ImportBookTask(mSheet, checkedTitle).execute();
+                                    int wordSize = mBookAdapter.getWordSize();
+                                    new ImportBookTask(mSheet, checkedTitle, wordSize).execute();
                                 }
                             });
 
@@ -369,17 +404,40 @@ public class SheetClientActivity extends Activity {
             }
             return null;
         }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
     }
 
 
-    public class ImportBookTask extends AsyncTask<Void, Void, Void> {
+    public class ImportBookTask extends AsyncTask<Void, Integer, Integer> {
 
         private HashSet<String> mBooks;
         private SpreadsheetEntry mSheet;
+        private int mWordSize;
 
-        public ImportBookTask (SpreadsheetEntry sheet, HashSet<String> books) {
+        public ImportBookTask (SpreadsheetEntry sheet, HashSet<String> books, int wordSize) {
             mSheet = sheet;
             mBooks = books;
+            mWordSize = wordSize;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            mDialog= new ProgressDialog(SheetClientActivity.this);
+            mDialog.setTitle("Progress");
+            mDialog.setMessage("Loading.....");
+            mDialog.setMax(mWordSize);
+            mDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+            mDialog.setCanceledOnTouchOutside(false);
+
+            mDialog.show();
         }
 
         /**
@@ -387,7 +445,7 @@ public class SheetClientActivity extends Activity {
          * on the AsyncTask instance.
          */
         @Override
-        protected Void doInBackground(Void... params) {
+        protected Integer doInBackground(Void... params) {
             try {
                 String token = fetchToken();
                 if (token != null) {
@@ -429,28 +487,35 @@ public class SheetClientActivity extends Activity {
                         String[] word = {spelling, phonetic, meaning, null, title};
 
                         db.execSQL( "INSERT INTO " + DbMeta.WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?)", word);
+                        publishProgress(++mPosDialog);
                     }
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-
-                        }
-                    });
-                    // **Insert the good stuff here.**
-                    // Use the token to access the user's Google data.
-                    //...
                 }
             } catch (IOException e) {
-                // The fetchToken() method handles Google-specific exceptions,
-                // so this indicates something went wrong at a higher level.
-                // TIP: Check for network connectivity before starting the AsyncTask.
-                //...
+                e.printStackTrace();
             } catch (ServiceException e) {
                 e.printStackTrace();
             }
-            return null;
+            return mPosDialog;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+            mDialog.setProgress(values[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            super.onPostExecute(result);
+
+            mDialog.dismiss();
+            mDialog = null;
+            mPosDialog = 0;
+
+            Toast.makeText(SheetClientActivity.this, result+" words are imported.", Toast.LENGTH_SHORT).show();
+
+            Log.i(TAG, "import is done.");
+            finish();
         }
     }
 

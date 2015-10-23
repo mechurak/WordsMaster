@@ -68,6 +68,17 @@ public class BookAdapter extends ArrayAdapter<BookAdapter.Book>{
         return ret;
     }
 
+    public int getWordSize() {
+        int ret = 0;
+        for (int i=0; i<mIsChecked.length; i++) {
+            if (mIsChecked[i]) {
+                Book book = items.get(i);
+                ret += book.getSize();
+            }
+        }
+        return ret;
+    }
+
     public static class Book {
         private String title;
         private int size;
