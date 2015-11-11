@@ -2,23 +2,28 @@ package com.shimnssso.wordsmaster;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
+import com.shimnssso.wordsmaster.data.BookAdapter;
 import com.shimnssso.wordsmaster.data.DbHelper;
-import com.shimnssso.wordsmaster.data.DbMeta;
+
+import java.util.ArrayList;
 
 public class BookListActivity extends Activity {
     private final static String TAG = "BookListActivity";
     private DbHelper mDbHelper = null;
-    private SimpleCursorAdapter mAdapter = null;
+    private BookAdapter mAdapter = null;
+    ListView mListView;
 
+    CheckBox chk_all;
+    Button btn_delete;
     Button btn_import;
 
     @Override
@@ -27,29 +32,40 @@ public class BookListActivity extends Activity {
         Log.i(TAG, "onCreate");
         setContentView(R.layout.book_list);
 
-        ListView listView = (ListView)findViewById(R.id.list_book);
-
-        mDbHelper = DbHelper.getInstance(this);
-        Cursor cursor = null;
-
-        String[] from = {DbMeta.WordTableMeta.CATEGORY, "COUNT(*)"};
-        int[] to = {R.id.title, R.id.size};
-        mAdapter = new SimpleCursorAdapter(this, R.layout.book_row, cursor, from, to, 0);
-        listView.setAdapter(mAdapter);
-        Log.i(TAG, "setAdapter");
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mListView = (ListView)findViewById(R.id.list_book);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Cursor c = (Cursor) mAdapter.getItem(position);
-                Log.d(TAG, "bookTitle from cursor = " + c.getString(1));
-                Log.d(TAG, "id " + id);
+                BookAdapter.Book book = mAdapter.getItem(position);
+                String title = book.getTitle();
 
                 mDbHelper.setCurrentWordId(0);
 
                 Intent intent = new Intent(BookListActivity.this, WordListActivity.class);
-                intent.putExtra("book", c.getString(1));
+                intent.putExtra("book", title);
                 startActivity(intent);
+            }
+        });
+
+        chk_all = (CheckBox)findViewById(R.id.chk_all);
+        chk_all.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mAdapter.checkAll(b);
+                mAdapter.notifyDataSetChanged();
+            }
+        });
+
+        btn_delete = (Button)findViewById(R.id.btn_delete);
+        btn_delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ArrayList<String> checkedBooks = mAdapter.getCheckedBook();
+                if (checkedBooks.size() > 0) {
+                    mDbHelper.deleteWords(checkedBooks);
+                    mAdapter.removeCheckedItem();
+                    mAdapter.notifyDataSetChanged();
+                }
             }
         });
 
@@ -68,9 +84,10 @@ public class BookListActivity extends Activity {
         super.onResume();
         Log.i(TAG, "onResume");
 
-        Cursor cursor = mDbHelper.getBookList();
-        mAdapter.changeCursor(cursor);
-
-
+        mDbHelper = DbHelper.getInstance(this);
+        ArrayList<BookAdapter.Book> mBookList = mDbHelper.getBookList();
+        mAdapter = new BookAdapter(BookListActivity.this, R.layout.book_row, mBookList);
+        mListView.setAdapter(mAdapter);
+        Log.i(TAG, "setAdapter");
     }
 }

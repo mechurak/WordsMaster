@@ -35,7 +35,6 @@ public class SheetListFragment extends Fragment{
                 mActivity.setCurrentSheet(position);
             }
         });
-        //mAdapter.notifyDataSetChanged();
         return v;
     }
 

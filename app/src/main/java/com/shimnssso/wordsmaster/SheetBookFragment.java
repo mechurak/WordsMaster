@@ -38,14 +38,6 @@ public class SheetBookFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, "id " + id + ", position " + position);
-                mActivity.setCurrentSheet(position);
-            }
-        });
-
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Log.d(TAG, "id " + id + ", position " + position);
                 mAdapter.check(position);
                 mAdapter.notifyDataSetChanged();
             }
@@ -67,8 +59,6 @@ public class SheetBookFragment extends Fragment {
                 mActivity.importBook();
             }
         });
-
-        //mAdapter.notifyDataSetChanged();
         return v;
     }
 }

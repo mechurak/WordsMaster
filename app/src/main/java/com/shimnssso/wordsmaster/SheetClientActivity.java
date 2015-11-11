@@ -365,10 +365,10 @@ public class SheetClientActivity extends FragmentActivity {
 
     public class ImportBookTask extends AsyncTask<Void, Integer, Integer> {
 
-        private HashSet<String> mBooks;
+        private ArrayList<String> mBooks;
         private int mWordSize;
 
-        public ImportBookTask (HashSet<String> books, int wordSize) {
+        public ImportBookTask (ArrayList<String> books, int wordSize) {
             mBooks = books;
             mWordSize = wordSize;
         }
@@ -401,9 +401,8 @@ public class SheetClientActivity extends FragmentActivity {
 
                     // delete books from book table
                     DbHelper dbHelper = DbHelper.getInstance();
-                    ArrayList<String> bookList = new ArrayList<>(mBooks);
                     String sheetTitle = mCurrentSheet.getTitle().getPlainText();
-                    dbHelper.deleteWords(sheetTitle, bookList);
+                    dbHelper.deleteWords(sheetTitle, mBooks);
 
 
                     WorksheetFeed worksheetFeed = mService.getFeed(mCurrentSheet.getWorksheetFeedUrl(), WorksheetFeed.class);
@@ -498,7 +497,7 @@ public class SheetClientActivity extends FragmentActivity {
     }
 
     public void importBook() {
-        HashSet<String> checkedTitle = mBookAdapter.getCheckedBook();
+        ArrayList<String> checkedTitle = mBookAdapter.getCheckedBook();
         int wordSize = mBookAdapter.getWordSize();
 
         new ImportBookTask(checkedTitle, wordSize).execute();

@@ -11,6 +11,41 @@
         android:id="@+id/textView"
         android:layout_gravity="center_horizontal" />
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/layout_for_book"
+        android:background="#d216206e">
+
+        <CheckBox
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:text="check All"
+            android:id="@+id/chk_all"
+            android:layout_weight="1" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:text="study"
+            android:id="@+id/btn_study"
+            android:layout_weight="1" />
+
+        <Button
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:text="delete"
+            android:id="@+id/btn_delete"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
     <ListView
         android:layout_width="fill_parent"
         android:layout_height="0dp"
