@@ -84,7 +84,7 @@ public class DbHelper extends SQLiteOpenHelper {
     }
 
 
-    public void deleteWords(ArrayList<String> titleList) {
+    public void deleteWords(String sheetTitle, ArrayList<String> titleList) {
         SQLiteDatabase db = this.getWritableDatabase();
         StringBuilder sb = new StringBuilder();
         sb.append("DELETE FROM ");
@@ -92,10 +92,10 @@ public class DbHelper extends SQLiteOpenHelper {
         sb.append(" WHERE ");
         for (int i=0; i<titleList.size()-1; i++) {
             sb.append(WordTableMeta.CATEGORY);
-            sb.append("='" + titleList.get(i) + "' or ");
+            sb.append("='" + sheetTitle + " - " + titleList.get(i) + "' or ");
         }
         sb.append(WordTableMeta.CATEGORY);
-        sb.append("='" + titleList.get(titleList.size()-1) + "'");
+        sb.append("='" + sheetTitle + " - " + titleList.get(titleList.size()-1) + "'");
         db.execSQL(sb.toString());
     }
 

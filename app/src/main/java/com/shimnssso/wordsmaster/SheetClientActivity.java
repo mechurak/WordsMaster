@@ -1,22 +1,17 @@
 package com.shimnssso.wordsmaster;
 
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,8 +41,12 @@ import java.util.HashSet;
 import java.util.List;
 
 
-public class SheetClientActivity extends Activity {
+public class SheetClientActivity extends FragmentActivity {
     private static final String TAG = "SheetClientActivity";
+    public final static int SHEET_LIST_FRAGMENT = 0;
+    public final static int SHEET_BOOK_FRAGMENT = 1;
+
+    private int mCurrentFragmentIndex = SHEET_LIST_FRAGMENT;
 
     static final int REQUEST_CODE_PICK_ACCOUNT = 1000;
     static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 1001;
@@ -62,14 +61,15 @@ public class SheetClientActivity extends Activity {
 
     String mEmail; // Received from newChooseAccountIntent(); passed to getToken()
     SpreadsheetService mService;
+    private SpreadsheetEntry mCurrentSheet;
+
     TextView mTitle;
-    ListView mListViewSheet;
-    ListView mListViewBook;
-    LinearLayout layout_for_book;
-    CheckBox chk_all_at_sheet;
-    Button btn_import_sheet;
-    SheetAdapter mSheetAdapter;
-    BookAdapter mBookAdapter;
+
+    private SheetAdapter mSheetAdapter;
+    public SheetAdapter getSheetAdapter() { return mSheetAdapter; }
+
+    private BookAdapter mBookAdapter;
+    public BookAdapter getBookAdapter() { return mBookAdapter; }
 
     List<SpreadsheetEntry> mSpreadsheets;
     ArrayList<BookAdapter.Book> mBookList;
@@ -111,16 +111,9 @@ public class SheetClientActivity extends Activity {
         mService.setProtocolVersion(SpreadsheetService.Versions.V3);
 
         mTitle = (TextView)findViewById(R.id.txt_title_at_sheet);
-        mListViewSheet = (ListView)findViewById(R.id.list_sheet);
-        mListViewBook = (ListView)findViewById(R.id.list_book_at_sheet);
-
-        chk_all_at_sheet = (CheckBox)findViewById(R.id.chk_all_at_sheet);
-        btn_import_sheet = (Button)findViewById(R.id.btn_import_sheet);
-        layout_for_book = (LinearLayout)findViewById(R.id.layout_for_book);
-        layout_for_book.setVisibility(View.GONE);
 
         mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
-        mProgressBar.setVisibility(View.INVISIBLE);
+        mProgressBar.setVisibility(View.GONE);
 
         mBookList = new ArrayList<>();
     }
@@ -133,7 +126,12 @@ public class SheetClientActivity extends Activity {
             pickUserAccount();
         } else {
             if (isDeviceOnline()) {
-                new GetSheetListTask().execute();
+                if (mSheetAdapter == null) {
+                    new GetSheetListTask().execute();
+                }
+                else {
+                    replaceFragment(SHEET_LIST_FRAGMENT);
+                }
             } else {
                 Toast.makeText(this, "network is not available", Toast.LENGTH_LONG).show();
             }
@@ -206,9 +204,11 @@ public class SheetClientActivity extends Activity {
         protected void onPreExecute() {
             super.onPreExecute();
 
+            Log.e(TAG, "onPreExecute in GetSheetListTask");
+
             mProgressBar.setVisibility(View.VISIBLE);
-            mProgressBar.setIndeterminate(true);
-            mProgressBar.setMax(100);
+            //mProgressBar.setIndeterminate(true);
+            //mProgressBar.setMax(100);
         }
 
         /**
@@ -220,7 +220,7 @@ public class SheetClientActivity extends Activity {
             try {
                 String token = fetchToken();
                 if (token != null) {
-                    Log.i(TAG, "token: " + token);
+                    Log.e(TAG, "token: " + token);
                     mService.setHeader("Authorization", "Bearer " + token);
 
                     // Define the URL to request.  This should never change.
@@ -229,7 +229,7 @@ public class SheetClientActivity extends Activity {
                     // Make a request to the API and get all spreadsheets.
                     SpreadsheetFeed feed = mService.getFeed(SPREADSHEET_FEED_URL, SpreadsheetFeed.class);
                     mSpreadsheets = feed.getEntries();
-                    Log.d(TAG, "spreadsheets size: " + mSpreadsheets.size());
+                    Log.e(TAG, "spreadsheets size: " + mSpreadsheets.size());
 
                     // Iterate through all of the spreadsheets returned
                     for (SpreadsheetEntry spreadsheet : mSpreadsheets) {
@@ -241,28 +241,14 @@ public class SheetClientActivity extends Activity {
                         Log.i(TAG, "updated: " + dateTime.toString());
                     }
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mSheetAdapter = new SheetAdapter(SheetClientActivity.this, R.layout.sheet_row, mSpreadsheets);
-                            mListViewSheet.setAdapter(mSheetAdapter);
-                            mListViewSheet.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    Log.d(TAG, "id " + id + ", position " + position);
-                                    SpreadsheetEntry sheet = mSheetAdapter.getItem(position);
-                                    new GetBookListTask(sheet).execute();
+                    mSheetAdapter = new SheetAdapter(SheetClientActivity.this, R.layout.sheet_row, mSpreadsheets);
 
-                                }
-                            });
-
-                        }
-                    });
                     // **Insert the good stuff here.**
                     // Use the token to access the user's Google data.
                     //...
                 }
             } catch (IOException e) {
+                e.printStackTrace();
                 // The fetchToken() method handles Google-specific exceptions,
                 // so this indicates something went wrong at a higher level.
                 // TIP: Check for network connectivity before starting the AsyncTask.
@@ -277,26 +263,23 @@ public class SheetClientActivity extends Activity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            mProgressBar.setVisibility(View.INVISIBLE);
+            Log.e(TAG, "onPostExecute in GetSheetListTask");
+
+            mProgressBar.setVisibility(View.GONE);
+            replaceFragment(SHEET_LIST_FRAGMENT);
         }
     }
 
 
     public class GetBookListTask extends AsyncTask<Void, Void, Void> {
 
-        private SpreadsheetEntry mSheet;
-
-        public GetBookListTask (SpreadsheetEntry sheet) {
-            mSheet = sheet;
-        }
-
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
 
             mProgressBar.setVisibility(View.VISIBLE);
-            mProgressBar.setIndeterminate(true);
-            mProgressBar.setMax(100);
+            //mProgressBar.setIndeterminate(true);
+            //mProgressBar.setMax(100);
         }
 
         /**
@@ -312,7 +295,7 @@ public class SheetClientActivity extends Activity {
                     mService.setHeader("Authorization", "Bearer " + token);
 
 
-                    WorksheetFeed worksheetFeed = mService.getFeed(mSheet.getWorksheetFeedUrl(), WorksheetFeed.class);
+                    WorksheetFeed worksheetFeed = mService.getFeed(mCurrentSheet.getWorksheetFeedUrl(), WorksheetFeed.class);
                     List<WorksheetEntry> worksheets = worksheetFeed.getEntries();
                     Log.d(TAG, "worksheets size: " + worksheets.size());
                     WorksheetEntry worksheet = worksheets.get(0);
@@ -351,43 +334,8 @@ public class SheetClientActivity extends Activity {
                     mBookList.add(book);
                     Log.d(TAG, "added " + book.getTitle() + " " + book.getSize());
 
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            mTitle.setText("Books");
-                            mListViewSheet.setVisibility(View.GONE);
-                            layout_for_book.setVisibility(View.VISIBLE);
+                    mBookAdapter = new BookAdapter(SheetClientActivity.this, R.layout.book_row, mBookList);
 
-                            mBookAdapter = new BookAdapter(SheetClientActivity.this, R.layout.book_row, mBookList);
-                            mListViewBook.setAdapter(mBookAdapter);
-                            mListViewBook.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    Log.d(TAG, "id " + id + ", position " + position);
-                                    mBookAdapter.check(position);
-                                    mBookAdapter.notifyDataSetChanged();
-                                }
-                            });
-
-                            chk_all_at_sheet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                                @Override
-                                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                    mBookAdapter.checkAll(isChecked);
-                                    mBookAdapter.notifyDataSetChanged();
-                                }
-                            });
-
-                            btn_import_sheet.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    HashSet<String> checkedTitle = mBookAdapter.getCheckedBook();
-                                    int wordSize = mBookAdapter.getWordSize();
-                                    new ImportBookTask(mSheet, checkedTitle, wordSize).execute();
-                                }
-                            });
-
-                        }
-                    });
                     // **Insert the good stuff here.**
                     // Use the token to access the user's Google data.
                     //...
@@ -409,7 +357,8 @@ public class SheetClientActivity extends Activity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
 
-            mProgressBar.setVisibility(View.INVISIBLE);
+            mProgressBar.setVisibility(View.GONE);
+            replaceFragment(SHEET_BOOK_FRAGMENT);
         }
     }
 
@@ -417,11 +366,9 @@ public class SheetClientActivity extends Activity {
     public class ImportBookTask extends AsyncTask<Void, Integer, Integer> {
 
         private HashSet<String> mBooks;
-        private SpreadsheetEntry mSheet;
         private int mWordSize;
 
-        public ImportBookTask (SpreadsheetEntry sheet, HashSet<String> books, int wordSize) {
-            mSheet = sheet;
+        public ImportBookTask (HashSet<String> books, int wordSize) {
             mBooks = books;
             mWordSize = wordSize;
         }
@@ -432,7 +379,7 @@ public class SheetClientActivity extends Activity {
 
             mDialog= new ProgressDialog(SheetClientActivity.this);
             mDialog.setTitle("Progress");
-            mDialog.setMessage("Loading.....");
+            mDialog.setMessage("Importing.....");
             mDialog.setMax(mWordSize);
             mDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             mDialog.setCanceledOnTouchOutside(false);
@@ -454,11 +401,12 @@ public class SheetClientActivity extends Activity {
 
                     // delete books from book table
                     DbHelper dbHelper = DbHelper.getInstance();
-                    ArrayList<String> bookList = new ArrayList<String>(mBooks);
-                    dbHelper.deleteWords(bookList);
+                    ArrayList<String> bookList = new ArrayList<>(mBooks);
+                    String sheetTitle = mCurrentSheet.getTitle().getPlainText();
+                    dbHelper.deleteWords(sheetTitle, bookList);
 
 
-                    WorksheetFeed worksheetFeed = mService.getFeed(mSheet.getWorksheetFeedUrl(), WorksheetFeed.class);
+                    WorksheetFeed worksheetFeed = mService.getFeed(mCurrentSheet.getWorksheetFeedUrl(), WorksheetFeed.class);
                     List<WorksheetEntry> worksheets = worksheetFeed.getEntries();
                     Log.d(TAG, "worksheets size: " + worksheets.size());
                     WorksheetEntry worksheet = worksheets.get(0);
@@ -484,7 +432,7 @@ public class SheetClientActivity extends Activity {
                         String spelling = row.getCustomElements().getValue(TAG_SPELLING);
                         String meaning = row.getCustomElements().getValue(TAG_MEANING);
 
-                        String[] word = {spelling, phonetic, meaning, null, title};
+                        String[] word = {spelling, phonetic, meaning, null, sheetTitle + " - "+ title};
 
                         db.execSQL( "INSERT INTO " + DbMeta.WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?)", word);
                         publishProgress(++mPosDialog);
@@ -515,13 +463,9 @@ public class SheetClientActivity extends Activity {
             Toast.makeText(SheetClientActivity.this, result+" words are imported.", Toast.LENGTH_SHORT).show();
 
             Log.i(TAG, "import is done.");
-            finish();
+            replaceFragment(SHEET_LIST_FRAGMENT);
         }
     }
-
-
-
-
 
     /**
      * Gets an authentication token from Google and handles any
@@ -542,5 +486,52 @@ public class SheetClientActivity extends Activity {
             //...
         }
         return null;
+    }
+
+    public void setTitle(String text) {
+        mTitle.setText(text);
+    }
+
+    public void setCurrentSheet(int position) {
+        mCurrentSheet = mSheetAdapter.getItem(position);
+        new GetBookListTask().execute();
+    }
+
+    public void importBook() {
+        HashSet<String> checkedTitle = mBookAdapter.getCheckedBook();
+        int wordSize = mBookAdapter.getWordSize();
+
+        new ImportBookTask(checkedTitle, wordSize).execute();
+    }
+
+    public void replaceFragment(int newFragmentIndex) {
+        Log.d(TAG, "replaceFragment " + newFragmentIndex);
+        Fragment newFragment = getFragment(newFragmentIndex);
+
+        // replace fragment
+        final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        transaction.replace(R.id.sheet_fragment, newFragment);
+
+        // Commit the transaction
+        transaction.commit();
+        mCurrentFragmentIndex = newFragmentIndex;
+    }
+
+    private Fragment getFragment(int index) {
+        Fragment newFragment = null;
+
+        switch (index) {
+            case SHEET_LIST_FRAGMENT:
+                newFragment = new SheetListFragment();
+                break;
+            case SHEET_BOOK_FRAGMENT:
+                newFragment = new SheetBookFragment();
+                break;
+            default:
+                Log.e(TAG, "unexpected index " + index);
+                break;
+        }
+        return newFragment;
     }
 }
