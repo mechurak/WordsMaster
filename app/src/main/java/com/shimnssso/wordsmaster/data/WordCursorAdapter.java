@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.shimnssso.wordsmaster.AudioHelper;
 import com.shimnssso.wordsmaster.R;
-import com.shimnssso.wordsmaster.WordListActivity;
+import com.shimnssso.wordsmaster.wordStudy.WordListActivity;
 
 import java.io.File;
 import java.io.FileInputStream;

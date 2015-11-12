@@ -1,4 +1,4 @@
-package com.shimnssso.wordsmaster;
+package com.shimnssso.wordsmaster.googleSheet;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 
+import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.BookAdapter;
 
 public class SheetBookFragment extends Fragment {

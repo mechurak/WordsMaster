@@ -1,4 +1,4 @@
-package com.shimnssso.wordsmaster;
+package com.shimnssso.wordsmaster.wordStudy;
 
 import android.content.Intent;
 import android.database.Cursor;
@@ -10,6 +10,7 @@ import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
+import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.data.WordCursorAdapter;
 

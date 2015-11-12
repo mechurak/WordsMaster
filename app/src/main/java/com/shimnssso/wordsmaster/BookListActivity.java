@@ -13,6 +13,8 @@ import android.widget.ListView;
 
 import com.shimnssso.wordsmaster.data.BookAdapter;
 import com.shimnssso.wordsmaster.data.DbHelper;
+import com.shimnssso.wordsmaster.googleSheet.SheetClientActivity;
+import com.shimnssso.wordsmaster.wordStudy.WordListActivity;
 
 import java.util.ArrayList;
 

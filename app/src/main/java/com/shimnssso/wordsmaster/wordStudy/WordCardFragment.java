@@ -1,4 +1,4 @@
-package com.shimnssso.wordsmaster;
+package com.shimnssso.wordsmaster.wordStudy;
 
 import android.database.Cursor;
 import android.os.Bundle;
@@ -9,6 +9,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.shimnssso.wordsmaster.AudioHelper;
+import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.WordCursorAdapter;
 
 import java.io.File;

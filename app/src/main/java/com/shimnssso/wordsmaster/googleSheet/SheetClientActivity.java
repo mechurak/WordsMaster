@@ -1,4 +1,4 @@
-package com.shimnssso.wordsmaster;
+package com.shimnssso.wordsmaster.googleSheet;
 
 import android.accounts.AccountManager;
 import android.app.Dialog;
@@ -27,6 +27,7 @@ import com.google.gdata.client.spreadsheet.*;
 import com.google.gdata.data.DateTime;
 import com.google.gdata.data.spreadsheet.*;
 import com.google.gdata.util.*;
+import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.BookAdapter;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.data.DbMeta;
@@ -37,7 +38,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 

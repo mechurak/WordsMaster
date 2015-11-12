@@ -1,4 +1,4 @@
-package com.shimnssso.wordsmaster;
+package com.shimnssso.wordsmaster.googleSheet;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.SheetAdapter;
 
 
