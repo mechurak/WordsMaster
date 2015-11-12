@@ -68,6 +68,13 @@
             <Button
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:text="TTS"
+                android:id="@+id/btn_tts"
+                android:layout_weight="1" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:text="Play"
                 android:id="@+id/btn_word_play"
                 android:layout_weight="1" />

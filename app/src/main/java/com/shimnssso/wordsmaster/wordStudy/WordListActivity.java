@@ -13,6 +13,7 @@ import android.widget.CompoundButton;
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.data.WordCursorAdapter;
+import com.shimnssso.wordsmaster.util.TTSHelper;
 
 public class WordListActivity extends FragmentActivity {
     private final static String TAG = "WordListActivity";
@@ -25,6 +26,7 @@ public class WordListActivity extends FragmentActivity {
 
 
     private DbHelper mDbHelper = null;
+    private TTSHelper mTTSHelper = null;
     Cursor cursor = null;
 
     WordCursorAdapter adapter = null;
@@ -102,6 +104,7 @@ public class WordListActivity extends FragmentActivity {
         super.onResume();
         Log.i(TAG, "onResume");
         mCurrentId = mDbHelper.getCurrentWordId();
+        mTTSHelper = TTSHelper.getInstance(getApplicationContext());
     }
 
     @Override
@@ -109,6 +112,9 @@ public class WordListActivity extends FragmentActivity {
         super.onPause();
         Log.i(TAG, "onPause");
         mDbHelper.setCurrentWordId(mCurrentId);
+        if (mTTSHelper != null) {
+            mTTSHelper.destroy();
+        }
     }
 
     @Override

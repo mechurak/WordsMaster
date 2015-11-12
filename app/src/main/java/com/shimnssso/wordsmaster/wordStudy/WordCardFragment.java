@@ -3,14 +3,16 @@ package com.shimnssso.wordsmaster.wordStudy;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.shimnssso.wordsmaster.AudioHelper;
 import com.shimnssso.wordsmaster.R;
+import com.shimnssso.wordsmaster.util.AudioHelper;
+import com.shimnssso.wordsmaster.util.TTSHelper;
 import com.shimnssso.wordsmaster.data.WordCursorAdapter;
 
 import java.io.File;
@@ -23,10 +25,12 @@ public class WordCardFragment extends Fragment {
 
     WordListActivity mActivity = null;
     WordCursorAdapter mAdapter = null;
+    TTSHelper mTTSHelper = null;
 
     Button btn_word_next;
     Button btn_word_prev;
     Button btn_word_record;
+    Button btn_tts;
     Button btn_word_play;
 
     TextView txt_word_spelling;
@@ -43,6 +47,7 @@ public class WordCardFragment extends Fragment {
 
         mActivity = (WordListActivity)getActivity();
         mAdapter = mActivity.getAdapter();
+        mTTSHelper = TTSHelper.getInstance(getActivity().getApplicationContext());
 
         txt_word_spelling = (TextView)v.findViewById(R.id.txt_word_spelling);
         txt_word_phonetic = (TextView)v.findViewById(R.id.txt_word_phonetic);
@@ -87,6 +92,19 @@ public class WordCardFragment extends Fragment {
                     AudioHelper.startRecord(getActivity().getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3");
                     btn_word_record.setText("STOP");
                     mIsRecording = true;
+                }
+            }
+        });
+
+        btn_tts = (Button)v.findViewById(R.id.btn_tts);
+        btn_tts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Cursor c = (Cursor) mAdapter.getItem(mActivity.getCurrentId());
+                String spelling = c.getString(1);
+
+                if (mTTSHelper != null) {
+                    mTTSHelper.speak(spelling);
                 }
             }
         });

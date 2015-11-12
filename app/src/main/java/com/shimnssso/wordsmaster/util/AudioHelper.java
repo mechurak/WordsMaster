@@ -1,4 +1,4 @@
-package com.shimnssso.wordsmaster;
+package com.shimnssso.wordsmaster.util;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;

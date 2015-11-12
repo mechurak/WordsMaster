@@ -8,10 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.CursorAdapter;
 import android.widget.TextView;
 
-import com.shimnssso.wordsmaster.AudioHelper;
+import com.shimnssso.wordsmaster.util.AudioHelper;
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.wordStudy.WordListActivity;
 
@@ -24,6 +25,8 @@ public class WordCursorAdapter extends CursorAdapter {
     private static final String TAG = "WordCursorAdapter";
     private Context mContext;
 
+    boolean isChecked[];
+
     private boolean visibleSpelling = true;
     private boolean visiblePhonetic = true;
     private boolean visibleMeaning = true;
@@ -34,6 +37,8 @@ public class WordCursorAdapter extends CursorAdapter {
         super(context,c,flags);
         inflater = LayoutInflater.from(context);
         mContext = context;
+
+        isChecked = new boolean[c.getCount()];
     }
 
     @Override
@@ -47,6 +52,7 @@ public class WordCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         final String word = cursor.getString(1);
+        final int position = cursor.getPosition();
         CheckBox chk = (CheckBox) view.findViewById(R.id.chk);
         TextView spelling = (TextView) view.findViewById(R.id.spelling);
         TextView phonetic = (TextView) view.findViewById(R.id.phonetic);
@@ -70,6 +76,14 @@ public class WordCursorAdapter extends CursorAdapter {
             meaning.setVisibility(View.VISIBLE);
         else
             meaning.setVisibility(View.GONE);
+
+        chk.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                isChecked[position] = b;
+            }
+        });
+        chk.setChecked(isChecked[position]);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,6 +132,12 @@ public class WordCursorAdapter extends CursorAdapter {
         else {
             Log.e(TAG, "unexpected type " + type);
             return false;
+        }
+    }
+
+    public void checkAll(boolean checked) {
+        for (boolean b : isChecked) {
+            b = checked;
         }
     }
 }
