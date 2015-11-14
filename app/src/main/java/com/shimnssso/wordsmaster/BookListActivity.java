@@ -15,6 +15,7 @@ import com.shimnssso.wordsmaster.data.BookAdapter;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.googleSheet.SheetClientActivity;
 import com.shimnssso.wordsmaster.wordStudy.WordListActivity;
+import com.shimnssso.wordsmaster.wordTest.SequenceTestActivity;
 
 import java.util.ArrayList;
 
@@ -25,6 +26,7 @@ public class BookListActivity extends Activity {
     ListView mListView;
 
     CheckBox chk_all;
+    Button btn_study;
     Button btn_delete;
     Button btn_import;
 
@@ -55,6 +57,15 @@ public class BookListActivity extends Activity {
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 mAdapter.checkAll(b);
                 mAdapter.notifyDataSetChanged();
+            }
+        });
+
+        btn_study = (Button)findViewById(R.id.btn_study);
+        btn_study.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(BookListActivity.this, SequenceTestActivity.class);
+                startActivity(intent);
             }
         });
 
