@@ -136,8 +136,8 @@ public class WordCursorAdapter extends CursorAdapter {
     }
 
     public void checkAll(boolean checked) {
-        for (boolean b : isChecked) {
-            b = checked;
+        for (int i=0; i< isChecked.length ; i++) {
+            isChecked[i] = checked;
         }
     }
 }

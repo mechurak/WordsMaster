@@ -14,7 +14,7 @@
             android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:text="check All"
-            android:id="@+id/checkBox"
+            android:id="@+id/chk_all"
             android:layout_weight="1" />
 
         <Space

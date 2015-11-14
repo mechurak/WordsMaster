@@ -32,6 +32,7 @@ public class TTSHelper implements TextToSpeech.OnInitListener{
             tts.shutdown();
             tts = null;
         }
+        mInstance = null;
     }
 
     @Override

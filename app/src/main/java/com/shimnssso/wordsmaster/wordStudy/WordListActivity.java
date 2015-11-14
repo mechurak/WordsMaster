@@ -29,11 +29,12 @@ public class WordListActivity extends FragmentActivity {
     private TTSHelper mTTSHelper = null;
     Cursor cursor = null;
 
-    WordCursorAdapter adapter = null;
+    WordCursorAdapter mAdapter = null;
     public WordCursorAdapter getAdapter() {
-        return adapter;
+        return mAdapter;
     }
 
+    CheckBox chk_all;
     CheckBox chk_word_spelling;
     CheckBox chk_word_phonetic;
     CheckBox chk_word_meaning;
@@ -60,13 +61,22 @@ public class WordListActivity extends FragmentActivity {
 
         mDbHelper = DbHelper.getInstance();
         cursor = mDbHelper.getWordList(bookTitle);
-        adapter = new WordCursorAdapter(this, cursor, 0);
+        mAdapter = new WordCursorAdapter(this, cursor, 0);
+
+        chk_all = (CheckBox)findViewById(R.id.chk_all);
+        chk_all.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                mAdapter.checkAll(b);
+                mAdapter.notifyDataSetChanged();
+            }
+        });
 
         chk_word_spelling = (CheckBox) findViewById(R.id.chk_word_spelling);
         chk_word_spelling.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                adapter.setVisible(TYPE_SPELLING, isChecked);
+                mAdapter.setVisible(TYPE_SPELLING, isChecked);
                 if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
                     WordCardFragment fragment = (WordCardFragment) getSupportFragmentManager().findFragmentById(R.id.word_fragment);
                     fragment.refreshCurrentCard();
@@ -77,7 +87,7 @@ public class WordListActivity extends FragmentActivity {
         chk_word_phonetic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                adapter.setVisible(TYPE_PHONETIC, isChecked);
+                mAdapter.setVisible(TYPE_PHONETIC, isChecked);
                 if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
                     WordCardFragment fragment = (WordCardFragment) getSupportFragmentManager().findFragmentById(R.id.word_fragment);
                     fragment.refreshCurrentCard();
@@ -88,7 +98,7 @@ public class WordListActivity extends FragmentActivity {
         chk_word_meaning.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                adapter.setVisible(TYPE_MEANING, isChecked);
+                mAdapter.setVisible(TYPE_MEANING, isChecked);
                 if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
                     WordCardFragment fragment = (WordCardFragment) getSupportFragmentManager().findFragmentById(R.id.word_fragment);
                     fragment.refreshCurrentCard();
@@ -125,12 +135,8 @@ public class WordListActivity extends FragmentActivity {
 
 
     public void replaceFragment(int newFragmentIndex) {
-
-        Fragment newFragment = null;
-
         Log.d(TAG, "replaceFragment " + newFragmentIndex);
-
-        newFragment = getFragment(newFragmentIndex);
+        Fragment newFragment = getFragment(newFragmentIndex);
 
         // replace fragment
         final FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
