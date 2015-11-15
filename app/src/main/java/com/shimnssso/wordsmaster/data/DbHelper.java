@@ -1,5 +1,6 @@
 package com.shimnssso.wordsmaster.data;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -53,11 +54,12 @@ public class DbHelper extends SQLiteOpenHelper {
                         + WordTableMeta.PHONETIC + " TEXT, "
                         + WordTableMeta.MEANING + " TEXT, "
                         + WordTableMeta.AUDIO_PATH + " TEXT, "
-                        + WordTableMeta.CATEGORY + " TEXT"
+                        + WordTableMeta.CATEGORY + " TEXT, "
+                        + WordTableMeta.FLAG + " INTEGER"
                         + " )"
         );
         for(String[] word : DbMeta.tempBook) {
-            db.execSQL( "INSERT INTO " + WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?)", word);
+            db.execSQL( "INSERT INTO " + WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?,?)", word);
         }
     }
 
@@ -77,11 +79,12 @@ public class DbHelper extends SQLiteOpenHelper {
         ArrayList<BookAdapter.Book> ret = new ArrayList<>();
         Cursor c = db.query(WordTableMeta.TABLE_NAME, columns, null, null, WordTableMeta.CATEGORY, null, null);
         if (c.moveToFirst()) {
-            while (c.moveToNext()) {
+            do {
                 BookAdapter.Book book = new BookAdapter.Book(c.getString(0), c.getInt(1));
                 ret.add(book);
-            }
+            } while (c.moveToNext());
         }
+        Log.d(TAG, "getBookList. size:" + ret.size());
         return ret;
     }
 
@@ -145,5 +148,12 @@ public class DbHelper extends SQLiteOpenHelper {
     public void setCurrentWordId(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL("UPDATE " + GlobalTableMeta.TABLE_NAME + " SET " + GlobalTableMeta.CUR_ID + "=" + id);
+    }
+
+    public int updateWord(ContentValues values, int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int result = db.update(WordTableMeta.TABLE_NAME, values, WordTableMeta.ID+"="+id, null);
+        Log.d(TAG, "updateWord. ret: " + result);
+        return result;
     }
 }

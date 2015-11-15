@@ -136,6 +136,8 @@ public class WordListActivity extends FragmentActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "onDestroy");
+
+        mDbHelper.close();
     }
 
 

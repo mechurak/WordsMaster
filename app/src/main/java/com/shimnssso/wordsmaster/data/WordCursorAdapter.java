@@ -1,5 +1,6 @@
 package com.shimnssso.wordsmaster.data;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -25,8 +26,10 @@ import java.io.IOException;
 public class WordCursorAdapter extends CursorAdapter {
     private static final String TAG = "WordCursorAdapter";
     private Context mContext;
+    private DbHelper mDbHelper;
 
     private boolean isChecked[];
+    private boolean isStarred[];
     private int mCurrentId;
 
     private boolean visibleSpelling = true;
@@ -39,8 +42,18 @@ public class WordCursorAdapter extends CursorAdapter {
         super(context,c,flags);
         inflater = LayoutInflater.from(context);
         mContext = context;
+        mDbHelper = DbHelper.getInstance();
 
         isChecked = new boolean[c.getCount()];
+        isStarred = new boolean[c.getCount()];
+
+        if (c.moveToFirst()) {
+            do {
+                final int position = c.getPosition();
+                final int wordFlag = c.getInt(6);
+                isStarred[position] = (wordFlag & DbMeta.WordFlag.STARRED) == DbMeta.WordFlag.STARRED;
+            } while(c.moveToNext());
+        }
     }
 
     @Override
@@ -52,15 +65,17 @@ public class WordCursorAdapter extends CursorAdapter {
     }
 
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, Context context, final Cursor cursor) {
         final String word = cursor.getString(1);
         final int position = cursor.getPosition();
+        final int id = cursor.getInt(0);
+        final int wordFlag = cursor.getInt(6);
         CheckBox chk = (CheckBox) view.findViewById(R.id.chk);
+        CheckBox chk_star = (CheckBox) view.findViewById(R.id.chk_star);
         TextView spelling = (TextView) view.findViewById(R.id.spelling);
         TextView phonetic = (TextView) view.findViewById(R.id.phonetic);
         TextView meaning = (TextView) view.findViewById(R.id.meaning);
         Button button = (Button) view.findViewById(R.id.button);
-
 
         spelling.setText(cursor.getString(1));
         phonetic.setText(cursor.getString(2));
@@ -83,9 +98,26 @@ public class WordCursorAdapter extends CursorAdapter {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 isChecked[position] = b;
+                Log.d(TAG, "onCheckedChanged. chk, id:" + id);
             }
         });
         chk.setChecked(isChecked[position]);
+
+        chk_star.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                isStarred[position] = isChecked;
+
+                int newFlag = wordFlag;
+                if (isChecked) newFlag |= DbMeta.WordFlag.STARRED;
+                else newFlag &= (~DbMeta.WordFlag.STARRED);
+                ContentValues value = new ContentValues();
+                value.put(DbMeta.WordTableMeta.FLAG, newFlag);
+                mDbHelper.updateWord(value, id);
+                Log.d(TAG, "onCheckedChanged. newFlag: " + newFlag + ", id:" + id);
+            }
+        });
+        chk_star.setChecked(isStarred[position]);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override

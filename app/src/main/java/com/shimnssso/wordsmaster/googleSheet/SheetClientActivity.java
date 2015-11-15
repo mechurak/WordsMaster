@@ -431,9 +431,9 @@ public class SheetClientActivity extends FragmentActivity {
                         String spelling = row.getCustomElements().getValue(TAG_SPELLING);
                         String meaning = row.getCustomElements().getValue(TAG_MEANING);
 
-                        String[] word = {spelling, phonetic, meaning, null, sheetTitle + " - "+ title};
+                        String[] word = {spelling, phonetic, meaning, null, sheetTitle + " - "+ title, "0"};
 
-                        db.execSQL( "INSERT INTO " + DbMeta.WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?)", word);
+                        db.execSQL( "INSERT INTO " + DbMeta.WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?,?)", word);
                         publishProgress(++mPosDialog);
                     }
                 }
