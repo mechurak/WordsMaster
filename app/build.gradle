@@ -11,11 +11,33 @@ android {
         versionCode 1
         versionName "1.0"
     }
+
+    signingConfigs {
+        // It's not necessary to specify, but I like to keep the debug keystore
+        // in SCM so all our debug builds (on all workstations) use the same
+        // key for convenience
+        debug {
+            storeFile file("debug_sshim.keystore")
+        }
+        //release {
+        //    storeFile file("release.keystore")
+        //    storePassword "myPassword"
+        //    keyAlias "myAlias"
+        //   keyPassword "Something...."
+        //}
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+
+        /* This one happens automatically
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        */
     }
 }
 
