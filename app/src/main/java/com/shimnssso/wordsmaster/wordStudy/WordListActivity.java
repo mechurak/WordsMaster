@@ -24,9 +24,9 @@ public class WordListActivity extends FragmentActivity {
     public final static int TYPE_PHONETIC = 101;
     public final static int TYPE_MEANING = 102;
 
-
     private DbHelper mDbHelper = null;
     private TTSHelper mTTSHelper = null;
+    private Fragment mCurrentFragment = null;
     Cursor cursor = null;
 
     WordCursorAdapter mAdapter = null;
@@ -38,14 +38,6 @@ public class WordListActivity extends FragmentActivity {
     CheckBox chk_word_spelling;
     CheckBox chk_word_phonetic;
     CheckBox chk_word_meaning;
-
-    int mCurrentId = 0;
-    public void setCurrentId(int id) {
-        mCurrentId = id;
-    }
-    public int getCurrentId() {
-        return mCurrentId;
-    }
 
     int mCurrentFragmentIndex = WORD_LIST_FRAGMENT;
 
@@ -68,7 +60,7 @@ public class WordListActivity extends FragmentActivity {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 mAdapter.checkAll(b);
-                mAdapter.notifyDataSetChanged();
+                mAdapter.notifyDataSetInvalidated();
             }
         });
 
@@ -76,33 +68,45 @@ public class WordListActivity extends FragmentActivity {
         chk_word_spelling.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                WordInterface temp = (WordInterface)mCurrentFragment;
+                temp.setVisible(TYPE_SPELLING, isChecked);
+                /*
                 mAdapter.setVisible(TYPE_SPELLING, isChecked);
                 if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
                     WordCardFragment fragment = (WordCardFragment) getSupportFragmentManager().findFragmentById(R.id.word_fragment);
                     fragment.refreshCurrentCard();
                 }
+                */
             }
         });
         chk_word_phonetic = (CheckBox) findViewById(R.id.chk_word_phonetic);
         chk_word_phonetic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                WordInterface temp = (WordInterface)mCurrentFragment;
+                temp.setVisible(TYPE_PHONETIC, isChecked);
+                /*
                 mAdapter.setVisible(TYPE_PHONETIC, isChecked);
                 if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
                     WordCardFragment fragment = (WordCardFragment) getSupportFragmentManager().findFragmentById(R.id.word_fragment);
                     fragment.refreshCurrentCard();
                 }
+                */
             }
         });
         chk_word_meaning = (CheckBox)findViewById(R.id.chk_word_meaning);
         chk_word_meaning.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                WordInterface temp = (WordInterface)mCurrentFragment;
+                temp.setVisible(TYPE_MEANING, isChecked);
+                /*
                 mAdapter.setVisible(TYPE_MEANING, isChecked);
                 if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
                     WordCardFragment fragment = (WordCardFragment) getSupportFragmentManager().findFragmentById(R.id.word_fragment);
                     fragment.refreshCurrentCard();
                 }
+                */
             }
         });
 
@@ -113,7 +117,8 @@ public class WordListActivity extends FragmentActivity {
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
-        mCurrentId = mDbHelper.getCurrentWordId();
+        int currentId = mDbHelper.getCurrentWordId();
+        mAdapter.setCurrentId(currentId);
         mTTSHelper = TTSHelper.getInstance(getApplicationContext());
     }
 
@@ -121,7 +126,7 @@ public class WordListActivity extends FragmentActivity {
     protected void onPause() {
         super.onPause();
         Log.i(TAG, "onPause");
-        mDbHelper.setCurrentWordId(mCurrentId);
+        mDbHelper.setCurrentWordId(mAdapter.getCurrentId());
         if (mTTSHelper != null) {
             mTTSHelper.destroy();
         }
@@ -146,6 +151,7 @@ public class WordListActivity extends FragmentActivity {
         // Commit the transaction
         transaction.commit();
         mCurrentFragmentIndex = newFragmentIndex;
+        mCurrentFragment = newFragment;
     }
 
     private Fragment getFragment(int index) {
@@ -163,5 +169,19 @@ public class WordListActivity extends FragmentActivity {
                 break;
         }
         return newFragment;
+    }
+
+    @Override
+    public void onBackPressed() {
+        Log.d(TAG, "back button is pressed");
+        if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
+            replaceFragment(WORD_LIST_FRAGMENT);
+            return;
+        }
+        super.onBackPressed();
+    }
+
+    public interface WordInterface {
+        void setVisible(int type, boolean visible);
     }
 }

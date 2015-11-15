@@ -20,7 +20,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class WordCardFragment extends Fragment {
+public class WordCardFragment extends Fragment implements WordListActivity.WordInterface {
     private final static String TAG = "WordCardFragment";
 
     WordListActivity mActivity = null;
@@ -58,10 +58,10 @@ public class WordCardFragment extends Fragment {
         btn_word_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int mCurrentId = mActivity.getCurrentId();
+                int mCurrentId = mAdapter.getCurrentId();
                 mCurrentId++;
                 if (mCurrentId >= mAdapter.getCount()) mCurrentId = 0;
-                mActivity.setCurrentId(mCurrentId);
+                mAdapter.setCurrentId(mCurrentId);
                 refreshCurrentCard();
             }
         });
@@ -69,10 +69,10 @@ public class WordCardFragment extends Fragment {
         btn_word_prev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int mCurrentId = mActivity.getCurrentId();
+                int mCurrentId = mAdapter.getCurrentId();
                 mCurrentId--;
                 if (mCurrentId < 0) mCurrentId = mAdapter.getCount() - 1;
-                mActivity.setCurrentId(mCurrentId);
+                mAdapter.setCurrentId(mCurrentId);
                 refreshCurrentCard();
             }
         });
@@ -87,7 +87,7 @@ public class WordCardFragment extends Fragment {
                     btn_word_record.setText("RECORD");
                     mIsRecording = false;
                 } else {
-                    Cursor c = (Cursor) mAdapter.getItem(mActivity.getCurrentId());
+                    Cursor c = (Cursor) mAdapter.getItem();
                     String spelling = c.getString(1);
                     AudioHelper.startRecord(getActivity().getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3");
                     btn_word_record.setText("STOP");
@@ -100,7 +100,7 @@ public class WordCardFragment extends Fragment {
         btn_tts.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Cursor c = (Cursor) mAdapter.getItem(mActivity.getCurrentId());
+                Cursor c = (Cursor) mAdapter.getItem();
                 String spelling = c.getString(1);
 
                 if (mTTSHelper != null) {
@@ -114,7 +114,7 @@ public class WordCardFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                Cursor c = (Cursor) mAdapter.getItem(mActivity.getCurrentId());
+                Cursor c = (Cursor) mAdapter.getItem();
                 String spelling = c.getString(1);
 
                 AudioHelper.play(getActivity().getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3");
@@ -126,12 +126,12 @@ public class WordCardFragment extends Fragment {
     }
 
     public void refreshCurrentCard() {
-        Cursor c = (Cursor) mAdapter.getItem(mActivity.getCurrentId());
+        Cursor c = (Cursor) mAdapter.getItem();
         txt_word_spelling.setText(c.getString(1));
         txt_word_phonetic.setText(c.getString(2));
         txt_word_meaning.setText(c.getString(3));
 
-        txt_word_progress.setText( (mActivity.getCurrentId()+1) + "/" + mAdapter.getCount() );
+        txt_word_progress.setText( (mAdapter.getCurrentId()+1) + "/" + mAdapter.getCount() );
 
         if (mAdapter.getVisible(WordListActivity.TYPE_SPELLING))
             txt_word_spelling.setVisibility(View.VISIBLE);
@@ -155,5 +155,11 @@ public class WordCardFragment extends Fragment {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void setVisible(int type, boolean visible) {
+        mAdapter.setVisible(type, visible);
+        refreshCurrentCard();
     }
 }

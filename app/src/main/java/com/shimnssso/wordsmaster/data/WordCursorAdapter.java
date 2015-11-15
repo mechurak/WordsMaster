@@ -2,6 +2,7 @@ package com.shimnssso.wordsmaster.data;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +26,8 @@ public class WordCursorAdapter extends CursorAdapter {
     private static final String TAG = "WordCursorAdapter";
     private Context mContext;
 
-    boolean isChecked[];
+    private boolean isChecked[];
+    private int mCurrentId;
 
     private boolean visibleSpelling = true;
     private boolean visiblePhonetic = true;
@@ -101,6 +103,13 @@ public class WordCursorAdapter extends CursorAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        if (position == mCurrentId) {
+            view.setBackgroundColor(Color.parseColor("#AAAAAA"));
+        }
+        else {
+            view.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        }
     }
 
     public void setVisible(int type, boolean visible) {
@@ -139,5 +148,16 @@ public class WordCursorAdapter extends CursorAdapter {
         for (int i=0; i< isChecked.length ; i++) {
             isChecked[i] = checked;
         }
+    }
+
+    public void setCurrentId(int positoin) {
+        mCurrentId = positoin;
+    }
+    public int getCurrentId() {
+        return mCurrentId;
+    }
+
+    public Object getItem() {
+        return super.getItem(mCurrentId);
     }
 }
