@@ -1,5 +1,6 @@
 package com.shimnssso.wordsmaster.wordStudy;
 
+import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -11,12 +12,14 @@ import android.widget.ListView;
 
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.WordCursorAdapter;
+import com.shimnssso.wordsmaster.util.TTSHelper;
 
 public class WordListFragment extends Fragment implements WordListActivity.WordInterface {
     private final static String TAG = "WordListFragment";
 
     WordListActivity mActivity;
     WordCursorAdapter mAdapter;
+    TTSHelper mTTSHelper = null;
     ListView mListView;
 
     @Override
@@ -24,6 +27,7 @@ public class WordListFragment extends Fragment implements WordListActivity.WordI
         View v = inflater.inflate(R.layout.word_list_fragment, container, false);
         mActivity = (WordListActivity)getActivity();
         mAdapter = mActivity.getAdapter();
+        mTTSHelper = TTSHelper.getInstance(getActivity().getApplicationContext());
 
         mListView = (ListView)v.findViewById(R.id.list_word);
         mListView.setAdapter(mAdapter);
@@ -33,6 +37,12 @@ public class WordListFragment extends Fragment implements WordListActivity.WordI
                 Log.d(TAG, "onItemClick");
                 mAdapter.setCurrentId(position);
                 mAdapter.notifyDataSetInvalidated();
+
+                Cursor c = (Cursor) mAdapter.getItem();
+                String spelling = c.getString(1);
+                if (mTTSHelper != null) {
+                    mTTSHelper.speak(spelling);
+                }
             }
         });
         mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
