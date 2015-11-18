@@ -2,12 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    buildToolsVersion "23.0.2"
 
     defaultConfig {
         applicationId "com.shimnssso.wordsmaster"
         minSdkVersion 15
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
     }
@@ -43,9 +43,10 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:22.1.1'
+    compile 'com.android.support:design:23.1.1'
+    //compile 'com.android.support:appcompat-v7:22.1.1'
     //compile 'com.google.android.gms:play-services:7.5.0'
-    compile 'com.google.android.gms:play-services-identity:7.5.0'
+    compile 'com.google.android.gms:play-services-identity:8.3.0'
     //compile 'com.google.android.gms:play-services-drive:7.5.0'
 
 //    compile files('libs/gdata-analytics-2.1.jar')
