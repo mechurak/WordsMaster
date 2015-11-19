@@ -19,44 +19,7 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/layout_for_book"
-            android:background="#d216206e"
-            android:layout_below="@+id/toolbar"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
-
-            <CheckBox
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:text="check All"
-                android:id="@+id/chk_all"
-                android:layout_weight="1" />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:layout_weight="1" />
-
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:text="study"
-                android:id="@+id/btn_study"
-                android:layout_weight="1" />
-
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="fill_parent"
-                android:text="delete"
-                android:id="@+id/btn_delete"
-                android:layout_weight="1" />
-
-        </LinearLayout>
-
+        <!--
         <ListView
             android:layout_width="fill_parent"
             android:layout_height="300dp"
@@ -66,23 +29,23 @@
             android:layout_alignParentStart="true"
             android:layout_below="@+id/layout_for_book"
             android:layout_above="@+id/btn_import" />
+        -->
 
-        <Button
-            android:layout_width="fill_parent"
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Import from google sheets"
-            android:id="@+id/btn_import"
-            android:layout_weight="1"
+            android:id="@+id/list_book"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true" />
+            android:layout_below="@+id/toolbar" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/actionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right|bottom"
-            android:src="@drawable/abc_btn_check_to_on_mtrl_015"
+            android:src="@drawable/ic_add_black_24dp"
             app:borderWidth="0dp"
             android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
@@ -90,6 +53,8 @@
             android:layout_marginRight="50dp"
             android:layout_marginBottom="50dp"
             android:layout_marginEnd="50dp" />
+
+
 
     </RelativeLayout>
 

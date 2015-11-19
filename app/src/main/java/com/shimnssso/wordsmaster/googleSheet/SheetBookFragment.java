@@ -19,7 +19,7 @@ public class SheetBookFragment extends Fragment {
     private final static String TAG = "SheetBookFragment";
 
     SheetClientActivity mActivity;
-    ListView mListView;
+    //ListView mListView;
     BookAdapter mAdapter;
 
     CheckBox chk_all_at_sheet;
@@ -32,7 +32,7 @@ public class SheetBookFragment extends Fragment {
         mAdapter = mActivity.getBookAdapter();
 
         mActivity.setTitle("Books");
-
+/*
         mListView = (ListView)v.findViewById(R.id.list_book_at_sheet);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -43,7 +43,7 @@ public class SheetBookFragment extends Fragment {
                 mAdapter.notifyDataSetChanged();
             }
         });
-
+*/
         chk_all_at_sheet = (CheckBox)v.findViewById(R.id.chk_all_at_sheet);
         chk_all_at_sheet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

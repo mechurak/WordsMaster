@@ -8,6 +8,8 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -32,7 +34,7 @@ public class BookListActivity extends AppCompatActivity {
     private final static String TAG = "BookListActivity";
     private DbHelper mDbHelper = null;
     private BookAdapter mAdapter = null;
-    ListView mListView;
+    RecyclerView mListView;
 
     CheckBox chk_all;
     Button btn_study;
@@ -50,6 +52,7 @@ public class BookListActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.title_book_list);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -57,8 +60,8 @@ public class BookListActivity extends AppCompatActivity {
         mDrawerToggle = new ActionBarDrawerToggle(this,
                 mDrawerLayout,
                 toolbar,
-                R.string.app_name,
-                R.string.app_name);
+                R.string.title_book_list,
+                R.string.title_book_list);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
@@ -72,7 +75,19 @@ public class BookListActivity extends AppCompatActivity {
             }
         });
 
-        mListView = (ListView)findViewById(R.id.list_book);
+        mDbHelper = DbHelper.getInstance(this);
+        ArrayList<BookAdapter.Book> mBookList = mDbHelper.getBookList();
+        mAdapter = new BookAdapter(BookListActivity.this, R.layout.book_row, mBookList);
+
+        mListView = (RecyclerView)findViewById(R.id.list_book);
+        LinearLayoutManager layoutManager=new LinearLayoutManager(getApplicationContext());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mListView.setHasFixedSize(true);
+        mListView.setLayoutManager(layoutManager);
+        mListView.setAdapter(mAdapter);
+        Log.i(TAG, "setAdapter");
+
+        /*
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -86,7 +101,9 @@ public class BookListActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        */
 
+        /*
         chk_all = (CheckBox)findViewById(R.id.chk_all);
         chk_all.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -126,18 +143,13 @@ public class BookListActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        */
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
-
-        mDbHelper = DbHelper.getInstance(this);
-        ArrayList<BookAdapter.Book> mBookList = mDbHelper.getBookList();
-        mAdapter = new BookAdapter(BookListActivity.this, R.layout.book_row, mBookList);
-        mListView.setAdapter(mAdapter);
-        Log.i(TAG, "setAdapter");
     }
 
     @Override

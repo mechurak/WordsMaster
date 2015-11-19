@@ -1,31 +1,33 @@
 package com.shimnssso.wordsmaster.data;
 
 import android.content.Context;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shimnssso.wordsmaster.R;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-public class BookAdapter extends ArrayAdapter<BookAdapter.Book>{
+public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     private static final String TAG = "BookAdapter";
 
     private ArrayList<Book> items;
     private Context mContext;
 
     public BookAdapter(Context context, int textViewResourceId, ArrayList<Book> items) {
-        super(context, textViewResourceId, items);
+        //super(context, textViewResourceId, items);
         this.mContext = context;
         this.items = items;
     }
+
+    /*
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
         View v = convertView;
@@ -55,18 +57,19 @@ public class BookAdapter extends ArrayAdapter<BookAdapter.Book>{
         }
         return v;
     }
+    */
 
     public void checkAll(boolean checked) {
         for (Book b : items) {
             b.setChecked(checked);
         }
     }
-
+/*
     public void check(int position) {
         Book b = getItem(position);
         b.setChecked(!b.isChecked());
     }
-
+*/
     public ArrayList<String> getCheckedBook() {
         ArrayList<String> ret = new ArrayList<>();
         for (Book b : items) {
@@ -97,6 +100,32 @@ public class BookAdapter extends ArrayAdapter<BookAdapter.Book>{
         return ret;
     }
 
+    @Override
+    public BookAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View v= LayoutInflater.from(parent.getContext()).inflate(R.layout.book_row, parent, false);
+        Log.d(TAG, "onCreateViewHolder" + v.toString());
+        return new ViewHolder(v);
+    }
+
+    @Override
+    public void onBindViewHolder(BookAdapter.ViewHolder holder, int position) {
+        final Book item=items.get(position);
+        Log.d(TAG, "onBindViewHolder. position: " + position);
+        holder.title.setText(item.getTitle());
+        holder.size.setText(String.valueOf(item.getSize()));
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(mContext, item.getTitle(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
+
     public static class Book {
         private String title;
         private int size;
@@ -112,6 +141,20 @@ public class BookAdapter extends ArrayAdapter<BookAdapter.Book>{
 
         public void setChecked(boolean checked) {
             this.checked = checked;
+        }
+    }
+
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        CardView cardView;
+        TextView title;
+        TextView size;
+
+        public ViewHolder(View itemView) {
+            super(itemView);
+            title = (TextView)itemView.findViewById(R.id.title);
+            size = (TextView)itemView.findViewById(R.id.size);
+            cardView=(CardView)itemView.findViewById(R.id.cardview);
         }
     }
 }
