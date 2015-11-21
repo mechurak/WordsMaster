@@ -2,15 +2,15 @@ package com.shimnssso.wordsmaster.googleSheet;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ListView;
 
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.BookAdapter;
@@ -19,7 +19,7 @@ public class SheetBookFragment extends Fragment {
     private final static String TAG = "SheetBookFragment";
 
     SheetClientActivity mActivity;
-    //ListView mListView;
+    RecyclerView mListView;
     BookAdapter mAdapter;
 
     CheckBox chk_all_at_sheet;
@@ -44,6 +44,14 @@ public class SheetBookFragment extends Fragment {
             }
         });
 */
+        mListView = (RecyclerView)v.findViewById(R.id.list_book);
+        LinearLayoutManager layoutManager=new LinearLayoutManager(mActivity.getApplicationContext());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mListView.setHasFixedSize(true);
+        mListView.setLayoutManager(layoutManager);
+        mListView.setAdapter(mAdapter);
+        Log.i(TAG, "setAdapter");
+
         chk_all_at_sheet = (CheckBox)v.findViewById(R.id.chk_all_at_sheet);
         chk_all_at_sheet.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

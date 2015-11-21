@@ -13,4 +13,6 @@
     <string name="second_activity_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin consectetur diam id aliquam scelerisque. Donec ultrices lacus vel dignissim pharetra. Vivamus pharetra augue quis rhoncus placerat. Sed ultricies at risus non cursus. Nam rutrum leo nec placerat consectetur. Vestibulum feugiat eleifend diam, nec interdum augue tincidunt sit amet. Praesent feugiat est auctor lacus consectetur, vitae pellentesque dolor laoreet.</string>
     <string name="title_activity_second">SecondActivity</string>
     <string name="title_book_list">Book List</string>
+    <string name="title_word_list">Word List</string>
+    <string name="title_sheet_list">Sheet List</string>
 </resources>

@@ -31,10 +31,9 @@
 
     </LinearLayout>
 
-    <ListView
+    <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/list_book_at_sheet"
-        android:layout_gravity="center_horizontal" />
+        android:layout_height="fill_parent"
+        android:id="@+id/list_book" />
 
 </LinearLayout>

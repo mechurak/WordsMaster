@@ -1,75 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical">
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-    <LinearLayout
-        android:orientation="horizontal"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="#d216206e"
-        android:layout_weight="1">
+        android:layout_height="match_parent">
 
-        <CheckBox
-            android:layout_width="0dp"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+
+        <!-- for fragment -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:text="check All"
-            android:id="@+id/chk_all"
-            android:layout_weight="1" />
+            android:id="@+id/word_fragment"
+            android:layout_weight="8"
+            android:layout_above="@+id/linearLayout"
+            android:layout_below="@+id/toolbar"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+        </LinearLayout>
 
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="1" />
-
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:text="Play All"
-            android:id="@+id/button2"
-            android:layout_weight="1" />
-    </LinearLayout>
-
-
-    <!-- for fragment -->
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:id="@+id/word_fragment"
-        android:layout_weight="8">
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center">
-
-        <CheckBox
-            android:layout_width="0dp"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="spelling"
-            android:id="@+id/chk_word_spelling"
-            android:layout_weight="1"
-            android:checked="true" />
+            android:gravity="center"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/linearLayout">
 
-        <CheckBox
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="phonetic"
-            android:id="@+id/chk_word_phonetic"
-            android:layout_weight="1"
-            android:checked="true" />
+            <CheckBox
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="spelling"
+                android:id="@+id/chk_word_spelling"
+                android:layout_weight="1"
+                android:checked="true" />
 
-        <CheckBox
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="meaning"
-            android:id="@+id/chk_word_meaning"
-            android:layout_weight="1"
-            android:checked="true" />
-    </LinearLayout>
-</LinearLayout>
+            <CheckBox
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="phonetic"
+                android:id="@+id/chk_word_phonetic"
+                android:layout_weight="1"
+                android:checked="true" />
+
+            <CheckBox
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="meaning"
+                android:id="@+id/chk_word_meaning"
+                android:layout_weight="1"
+                android:checked="true" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <android.support.design.widget.NavigationView
+        android:id="@+id/navigation_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        app:headerLayout="@layout/drawer_header"
+        app:menu="@menu/drawer"/>
+</android.support.v4.widget.DrawerLayout>

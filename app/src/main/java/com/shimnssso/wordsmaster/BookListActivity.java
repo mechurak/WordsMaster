@@ -17,18 +17,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.shimnssso.wordsmaster.data.BookAdapter;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.googleSheet.SheetClientActivity;
-import com.shimnssso.wordsmaster.wordStudy.WordListActivity;
-import com.shimnssso.wordsmaster.wordTest.SequenceTestActivity;
 
 import java.util.ArrayList;
 
@@ -82,14 +77,14 @@ public class BookListActivity extends AppCompatActivity {
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 Snackbar.make(mListView , "import from google", Snackbar.LENGTH_SHORT).show();
-                //Intent intent = new Intent(BookListActivity.this, SheetClientActivity.class);
-                //startActivity(intent);
+                Intent intent = new Intent(BookListActivity.this, SheetClientActivity.class);
+                startActivity(intent);
             }
         });
 
         mDbHelper = DbHelper.getInstance(this);
         ArrayList<BookAdapter.Book> mBookList = mDbHelper.getBookList();
-        mAdapter = new BookAdapter(BookListActivity.this, R.layout.book_row, mBookList);
+        mAdapter = new BookAdapter(BookListActivity.this, R.layout.book_list, mBookList);
 
         mListView = (RecyclerView)findViewById(R.id.list_book);
         LinearLayoutManager layoutManager=new LinearLayoutManager(getApplicationContext());

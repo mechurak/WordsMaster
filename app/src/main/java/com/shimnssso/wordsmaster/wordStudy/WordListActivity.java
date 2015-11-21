@@ -1,21 +1,30 @@
 package com.shimnssso.wordsmaster.wordStudy;
 
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.data.WordCursorAdapter;
 import com.shimnssso.wordsmaster.util.TTSHelper;
 
-public class WordListActivity extends FragmentActivity {
+public class WordListActivity extends AppCompatActivity {
     private final static String TAG = "WordListActivity";
     public final static int WORD_LIST_FRAGMENT = 0;
     public final static int WORD_CARD_FRAGMENT = 1;
@@ -39,6 +48,9 @@ public class WordListActivity extends FragmentActivity {
     CheckBox chk_word_phonetic;
     CheckBox chk_word_meaning;
 
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
+
     int mCurrentFragmentIndex = WORD_LIST_FRAGMENT;
 
     @Override
@@ -46,6 +58,31 @@ public class WordListActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
         setContentView(R.layout.word_list);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.title_word_list);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        mDrawerToggle = new ActionBarDrawerToggle(this,
+                mDrawerLayout,
+                toolbar,
+                R.string.title_word_list,
+                R.string.title_word_list);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                menuItem.setChecked(true);
+                mDrawerLayout.closeDrawers();
+                Toast.makeText(WordListActivity.this, menuItem.getTitle(), Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
 
         Intent intent = getIntent();
         String bookTitle = intent.getStringExtra("book");
@@ -55,6 +92,7 @@ public class WordListActivity extends FragmentActivity {
         cursor = mDbHelper.getWordList(bookTitle);
         mAdapter = new WordCursorAdapter(this, cursor, 0);
 
+        /*
         chk_all = (CheckBox)findViewById(R.id.chk_all);
         chk_all.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -63,6 +101,7 @@ public class WordListActivity extends FragmentActivity {
                 mAdapter.notifyDataSetInvalidated();
             }
         });
+        */
 
         chk_word_spelling = (CheckBox) findViewById(R.id.chk_word_spelling);
         chk_word_spelling.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -70,13 +109,6 @@ public class WordListActivity extends FragmentActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 WordInterface temp = (WordInterface)mCurrentFragment;
                 temp.setVisible(TYPE_SPELLING, isChecked);
-                /*
-                mAdapter.setVisible(TYPE_SPELLING, isChecked);
-                if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
-                    WordCardFragment fragment = (WordCardFragment) getSupportFragmentManager().findFragmentById(R.id.word_fragment);
-                    fragment.refreshCurrentCard();
-                }
-                */
             }
         });
         chk_word_phonetic = (CheckBox) findViewById(R.id.chk_word_phonetic);
@@ -85,13 +117,6 @@ public class WordListActivity extends FragmentActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 WordInterface temp = (WordInterface)mCurrentFragment;
                 temp.setVisible(TYPE_PHONETIC, isChecked);
-                /*
-                mAdapter.setVisible(TYPE_PHONETIC, isChecked);
-                if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
-                    WordCardFragment fragment = (WordCardFragment) getSupportFragmentManager().findFragmentById(R.id.word_fragment);
-                    fragment.refreshCurrentCard();
-                }
-                */
             }
         });
         chk_word_meaning = (CheckBox)findViewById(R.id.chk_word_meaning);
@@ -100,13 +125,6 @@ public class WordListActivity extends FragmentActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 WordInterface temp = (WordInterface)mCurrentFragment;
                 temp.setVisible(TYPE_MEANING, isChecked);
-                /*
-                mAdapter.setVisible(TYPE_MEANING, isChecked);
-                if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
-                    WordCardFragment fragment = (WordCardFragment) getSupportFragmentManager().findFragmentById(R.id.word_fragment);
-                    fragment.refreshCurrentCard();
-                }
-                */
             }
         });
 
@@ -182,6 +200,50 @@ public class WordListActivity extends FragmentActivity {
         }
         super.onBackPressed();
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        switch (id) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            /*
+            case R.id.action_settings:
+                return true;
+                */
+        }
+
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     public interface WordInterface {
         void setVisible(int type, boolean visible);

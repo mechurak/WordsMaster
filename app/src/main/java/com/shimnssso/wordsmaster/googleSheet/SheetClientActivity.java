@@ -4,16 +4,23 @@ import android.accounts.AccountManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.auth.GoogleAuthException;
@@ -41,7 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SheetClientActivity extends FragmentActivity {
+public class SheetClientActivity extends AppCompatActivity {
     private static final String TAG = "SheetClientActivity";
     public final static int SHEET_LIST_FRAGMENT = 0;
     public final static int SHEET_BOOK_FRAGMENT = 1;
@@ -63,7 +70,8 @@ public class SheetClientActivity extends FragmentActivity {
     SpreadsheetService mService;
     private SpreadsheetEntry mCurrentSheet;
 
-    TextView mTitle;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     private SheetAdapter mSheetAdapter;
     public SheetAdapter getSheetAdapter() { return mSheetAdapter; }
@@ -107,10 +115,35 @@ public class SheetClientActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.sheet_list);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.title_sheet_list);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+        mDrawerToggle = new ActionBarDrawerToggle(this,
+                mDrawerLayout,
+                toolbar,
+                R.string.title_word_list,
+                R.string.title_book_list);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+                menuItem.setChecked(true);
+                mDrawerLayout.closeDrawers();
+                Toast.makeText(SheetClientActivity.this, menuItem.getTitle(), Toast.LENGTH_LONG).show();
+                return true;
+            }
+        });
+
         mService = new SpreadsheetService("MySpreadsheetIntegration");
         mService.setProtocolVersion(SpreadsheetService.Versions.V3);
 
-        mTitle = (TextView)findViewById(R.id.txt_title_at_sheet);
+        //mTitle = (TextView)findViewById(R.id.txt_title_at_sheet);
 
         mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
         mProgressBar.setVisibility(View.GONE);
@@ -334,7 +367,7 @@ public class SheetClientActivity extends FragmentActivity {
                     mBookList.add(book);
                     Log.d(TAG, "added " + book.getTitle() + " " + book.getSize());
 
-                    mBookAdapter = new BookAdapter(SheetClientActivity.this, R.layout.book_row, mBookList);
+                    mBookAdapter = new BookAdapter(SheetClientActivity.this, R.layout.sheet_list, mBookList);
 
                     // **Insert the good stuff here.**
                     // Use the token to access the user's Google data.
@@ -488,7 +521,7 @@ public class SheetClientActivity extends FragmentActivity {
     }
 
     public void setTitle(String text) {
-        mTitle.setText(text);
+        getSupportActionBar().setTitle(text);
     }
 
     public void setCurrentSheet(int position) {
@@ -532,5 +565,48 @@ public class SheetClientActivity extends FragmentActivity {
                 break;
         }
         return newFragment;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        switch (id) {
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            /*
+            case R.id.action_settings:
+                return true;
+                */
+        }
+
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

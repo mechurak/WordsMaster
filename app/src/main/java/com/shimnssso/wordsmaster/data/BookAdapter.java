@@ -22,11 +22,13 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
 
     private ArrayList<Book> items;
     private Context mContext;
+    private int parentLayout;
 
-    public BookAdapter(Context context, int textViewResourceId, ArrayList<Book> items) {
+    public BookAdapter(Context context, int parentLayout, ArrayList<Book> items) {
         //super(context, textViewResourceId, items);
         this.mContext = context;
         this.items = items;
+        this.parentLayout = parentLayout;
     }
 
     /*
@@ -122,9 +124,15 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
 
                 String title = item.getTitle();
 
-                Intent intent = new Intent(mContext, WordListActivity.class);
-                intent.putExtra("book", title);
-                mContext.startActivity(intent);
+                if (parentLayout == R.layout.book_list) {
+                    Intent intent = new Intent(mContext, WordListActivity.class);
+                    intent.putExtra("book", title);
+                    mContext.startActivity(intent);
+                }
+                else if (parentLayout == R.layout.sheet_list) {
+                    Log.d(TAG, title + " is clicked");
+                    //notifyDataSetChanged();
+                }
             }
         });
     }
