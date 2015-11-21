@@ -3,7 +3,9 @@ package com.shimnssso.wordsmaster;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -43,6 +45,7 @@ public class BookListActivity extends AppCompatActivity {
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
+    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +75,15 @@ public class BookListActivity extends AppCompatActivity {
                 mDrawerLayout.closeDrawers();
                 Toast.makeText(BookListActivity.this, menuItem.getTitle(), Toast.LENGTH_LONG).show();
                 return true;
+            }
+        });
+
+        mFab = (FloatingActionButton)findViewById(R.id.actionButton);
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                Snackbar.make(mListView , "import from google", Snackbar.LENGTH_SHORT).show();
+                //Intent intent = new Intent(BookListActivity.this, SheetClientActivity.class);
+                //startActivity(intent);
             }
         });
 

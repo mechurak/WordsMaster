@@ -1,6 +1,7 @@
 package com.shimnssso.wordsmaster.data;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.shimnssso.wordsmaster.R;
+import com.shimnssso.wordsmaster.wordStudy.WordListActivity;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -117,6 +119,12 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 Toast.makeText(mContext, item.getTitle(), Toast.LENGTH_SHORT).show();
+
+                String title = item.getTitle();
+
+                Intent intent = new Intent(mContext, WordListActivity.class);
+                intent.putExtra("book", title);
+                mContext.startActivity(intent);
             }
         });
     }
