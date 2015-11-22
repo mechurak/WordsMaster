@@ -8,5 +8,12 @@
         <item name="colorAccent">@color/accent</item>
     </style>
 
+    <style name="SelectTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/theme2_primary</item>
+        <item name="colorPrimaryDark">@color/theme2_primary_dark</item>
+        <item name="colorAccent">@color/theme2_accent</item>
+    </style>
+
 
 </resources>

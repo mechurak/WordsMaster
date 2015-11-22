@@ -2,6 +2,7 @@ package com.shimnssso.wordsmaster.data;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -9,7 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.wordStudy.WordListActivity;
@@ -23,57 +23,43 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     private ArrayList<Book> items;
     private Context mContext;
     private int parentLayout;
+    private int mSelectedItemNum = 0;
+    private BookAdpaterListener mListener;
 
     public BookAdapter(Context context, int parentLayout, ArrayList<Book> items) {
-        //super(context, textViewResourceId, items);
         this.mContext = context;
         this.items = items;
         this.parentLayout = parentLayout;
-    }
 
-    /*
-    @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        View v = convertView;
-        if (v == null) {
-            LayoutInflater vi = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            v = vi.inflate(R.layout.book_row, null);
+        /*
+        if (this.parentLayout == R.layout.book_list) {
+            isSelectMode = false;
         }
-        final Book book = items.get(position);
-        if (book != null) {
-            CheckBox chk = (CheckBox) v.findViewById(R.id.chk);
-            TextView tt = (TextView) v.findViewById(R.id.title);
-            TextView bt = (TextView) v.findViewById(R.id.size);
-            if (tt != null){
-                tt.setText(book.getTitle());
-            }
-            if(bt != null){
-                bt.setText(String.valueOf(book.getSize()));
-            }
-            chk.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                    Log.d(TAG, "onCheckedChanged. position:" + position + ", b:" + b);
-                    book.setChecked(b);
-                }
-            });
-            chk.setChecked(book.isChecked());
+        else if (this.parentLayout == R.layout.sheet_list) {
+            isSelectMode = true;
         }
-        return v;
+        */
     }
-    */
 
     public void checkAll(boolean checked) {
         for (Book b : items) {
             b.setChecked(checked);
         }
+        if (checked) mSelectedItemNum = items.size();
+        else mSelectedItemNum = 0;
+        if (mListener != null) {
+            mListener.onSelectedNumChanged(mSelectedItemNum);
+        }
+        notifyDataSetChanged();
     }
-/*
-    public void check(int position) {
-        Book b = getItem(position);
+
+    public boolean check(int position) {
+        Book b = items.get(position);
         b.setChecked(!b.isChecked());
+        Log.d(TAG, "check. position " + position + " " + b.isChecked());
+        return b.isChecked();
     }
-*/
+
     public ArrayList<String> getCheckedBook() {
         ArrayList<String> ret = new ArrayList<>();
         for (Book b : items) {
@@ -92,6 +78,11 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
                 i.remove();
             }
         }
+        mSelectedItemNum = 0;
+        if (mListener != null) {
+            mListener.onSelectedNumChanged(mSelectedItemNum);
+        }
+        notifyDataSetChanged();
     }
 
     public int getWordSize() {
@@ -112,29 +103,17 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(BookAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(final BookAdapter.ViewHolder holder, final int position) {
         final Book item=items.get(position);
         Log.d(TAG, "onBindViewHolder. position: " + position);
+
+        // mark  the view as selected:
+        //holder.itemView.setSelected(item.isChecked());
+        //holder.cardView.setSelected(item.isChecked());
+
+        holder.cardView.setCardBackgroundColor(item.isChecked() ? Color.LTGRAY : Color.WHITE);
         holder.title.setText(item.getTitle());
         holder.size.setText(String.valueOf(item.getSize()));
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(mContext, item.getTitle(), Toast.LENGTH_SHORT).show();
-
-                String title = item.getTitle();
-
-                if (parentLayout == R.layout.book_list) {
-                    Intent intent = new Intent(mContext, WordListActivity.class);
-                    intent.putExtra("book", title);
-                    mContext.startActivity(intent);
-                }
-                else if (parentLayout == R.layout.sheet_list) {
-                    Log.d(TAG, title + " is clicked");
-                    //notifyDataSetChanged();
-                }
-            }
-        });
     }
 
     @Override
@@ -166,11 +145,65 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         TextView title;
         TextView size;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(final View itemView) {
             super(itemView);
+
             title = (TextView)itemView.findViewById(R.id.title);
             size = (TextView)itemView.findViewById(R.id.size);
             cardView=(CardView)itemView.findViewById(R.id.cardview);
+
+            itemView.setClickable(true);
+
+            // Handle item click and set the selection
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.e(TAG, "onClick. test" );
+
+                    if (mSelectedItemNum > 0) {
+                        RecyclerView parentView = (RecyclerView)itemView.getParent();
+                        int position = parentView.getChildAdapterPosition(v);
+                        boolean isChecked = check(position);
+                        notifyItemChanged(position);
+                        if (isChecked) mSelectedItemNum++;
+                        else mSelectedItemNum--;
+
+                        if (mListener != null) mListener.onSelectedNumChanged(mSelectedItemNum);
+                    }
+
+                    else {
+                        Log.e(TAG, "onClick in non select mode");
+                        Intent intent = new Intent(mContext, WordListActivity.class);
+                        intent.putExtra("book", title.getText());
+                        mContext.startActivity(intent);
+                    }
+                }
+            });
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    Log.e(TAG, "onLongClick");
+                    RecyclerView parentView = (RecyclerView)itemView.getParent();
+                    int position = parentView.getChildAdapterPosition(v);
+                    boolean isChecked = check(position);
+                    notifyItemChanged(position);
+                    if (isChecked) mSelectedItemNum++;
+                    else mSelectedItemNum--;
+
+                    if (mListener != null) mListener.onSelectedNumChanged(mSelectedItemNum);
+                    return true;
+                }
+            });
         }
+    }
+
+
+    public void setListener(BookAdpaterListener listener) {
+        mListener = listener;
+    }
+
+    public interface BookAdpaterListener {
+        void onSelectedNumChanged(int selectItemNum);
     }
 }
