@@ -30,15 +30,6 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
         this.mContext = context;
         this.items = items;
         this.parentLayout = parentLayout;
-
-        /*
-        if (this.parentLayout == R.layout.book_list) {
-            isSelectMode = false;
-        }
-        else if (this.parentLayout == R.layout.sheet_list) {
-            isSelectMode = true;
-        }
-        */
     }
 
     public void checkAll(boolean checked) {
@@ -160,7 +151,7 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
                 public void onClick(View v) {
                     Log.e(TAG, "onClick. test" );
 
-                    if (mSelectedItemNum > 0) {
+                    if (mSelectedItemNum > 0 || parentLayout == R.layout.sheet_list) {
                         RecyclerView parentView = (RecyclerView)itemView.getParent();
                         int position = parentView.getChildAdapterPosition(v);
                         boolean isChecked = check(position);

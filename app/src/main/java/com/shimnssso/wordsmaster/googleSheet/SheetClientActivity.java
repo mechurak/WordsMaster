@@ -6,11 +6,13 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -48,7 +50,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SheetClientActivity extends AppCompatActivity {
+public class SheetClientActivity extends AppCompatActivity implements BookAdapter.BookAdpaterListener {
     private static final String TAG = "SheetClientActivity";
     public final static int SHEET_LIST_FRAGMENT = 0;
     public final static int SHEET_BOOK_FRAGMENT = 1;
@@ -85,6 +87,8 @@ public class SheetClientActivity extends AppCompatActivity {
     ProgressDialog mDialog;
     int mPosDialog = 0;
     ProgressBar mProgressBar;
+
+    private boolean mIsSelectMode = false;
 
     private void pickUserAccount() {
         String[] accountTypes = new String[]{"com.google"};
@@ -127,6 +131,22 @@ public class SheetClientActivity extends AppCompatActivity {
                 toolbar,
                 R.string.title_word_list,
                 R.string.title_book_list);
+
+        // for select mode
+        mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // event when click home button
+                Log.e(TAG, "onClick");
+                mDrawerToggle.setDrawerIndicatorEnabled(true);
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(getApplicationContext(), R.color.primary)));
+                getSupportActionBar().setTitle(R.string.title_sheet_list);
+                invalidateOptionsMenu();
+                mBookList.clear();
+
+                replaceFragment(SHEET_LIST_FRAGMENT);
+            }
+        });
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
@@ -229,7 +249,6 @@ public class SheetClientActivity extends AppCompatActivity {
         // TODO return network status
         return true;
     }
-
 
     public class GetSheetListTask extends AsyncTask<Void, Void, Void> {
 
@@ -368,6 +387,7 @@ public class SheetClientActivity extends AppCompatActivity {
                     Log.d(TAG, "added " + book.getTitle() + " " + book.getSize());
 
                     mBookAdapter = new BookAdapter(SheetClientActivity.this, R.layout.sheet_list, mBookList);
+                    mBookAdapter.setListener(SheetClientActivity.this);
 
                     // **Insert the good stuff here.**
                     // Use the token to access the user's Google data.
@@ -391,6 +411,11 @@ public class SheetClientActivity extends AppCompatActivity {
             super.onPostExecute(aVoid);
 
             mProgressBar.setVisibility(View.GONE);
+            mDrawerToggle.setDrawerIndicatorEnabled(false);
+            getSupportActionBar().setTitle("0");
+            invalidateOptionsMenu();
+            mIsSelectMode = false;
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(getApplicationContext(), R.color.theme2_primary)));
             replaceFragment(SHEET_BOOK_FRAGMENT);
         }
     }
@@ -495,6 +520,11 @@ public class SheetClientActivity extends AppCompatActivity {
             Toast.makeText(SheetClientActivity.this, result+" words are imported.", Toast.LENGTH_SHORT).show();
 
             Log.i(TAG, "import is done.");
+            mDrawerToggle.setDrawerIndicatorEnabled(true);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(getApplicationContext(), R.color.primary)));
+            getSupportActionBar().setTitle(R.string.title_sheet_list);
+            invalidateOptionsMenu();
+            mBookList.clear();
             replaceFragment(SHEET_LIST_FRAGMENT);
         }
     }
@@ -518,10 +548,6 @@ public class SheetClientActivity extends AppCompatActivity {
             //...
         }
         return null;
-    }
-
-    public void setTitle(String text) {
-        getSupportActionBar().setTitle(text);
     }
 
     public void setCurrentSheet(int position) {
@@ -569,7 +595,17 @@ public class SheetClientActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        if (mCurrentFragmentIndex==SHEET_LIST_FRAGMENT) {
+            getMenuInflater().inflate(R.menu.menu_main, menu);
+        }
+        else {
+            if (mIsSelectMode) {
+                getMenuInflater().inflate(R.menu.menu_sheet_book_select_import, menu);
+            }
+            else {
+                getMenuInflater().inflate(R.menu.menu_sheet_book_select, menu);
+            }
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -598,6 +634,15 @@ public class SheetClientActivity extends AppCompatActivity {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
+
+            case R.id.action_all:
+                mBookAdapter.checkAll(true);
+                return true;
+
+            case R.id.action_import:
+                importBook();
+                return true;
+
             /*
             case R.id.action_settings:
                 return true;
@@ -608,5 +653,23 @@ public class SheetClientActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSelectedNumChanged(int selectItemNum) {
+        if (selectItemNum > 0) {
+            if (!mIsSelectMode) {
+                mIsSelectMode = true;
+                invalidateOptionsMenu();
+            }
+            getSupportActionBar().setTitle(String.valueOf(selectItemNum));
+        }
+        else {
+            if (mIsSelectMode) {
+                mIsSelectMode = false;
+                invalidateOptionsMenu();
+            }
+            getSupportActionBar().setTitle(String.valueOf(selectItemNum));
+        }
     }
 }

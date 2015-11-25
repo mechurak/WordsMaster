@@ -6,6 +6,7 @@
     <string name="action_delete">del</string>
     <string name="action_study">study</string>
     <string name="action_select_all">all</string>
+    <string name="action_import_book">import</string>
     <string name="nav_item_attachment">Attachment</string>
     <string name="nav_item_images">Images</string>
     <string name="nav_item_location">My Location</string>

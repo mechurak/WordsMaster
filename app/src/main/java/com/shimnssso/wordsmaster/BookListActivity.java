@@ -37,11 +37,6 @@ public class BookListActivity extends AppCompatActivity implements BookAdapter.B
     RecyclerView mListView;
     private boolean mIsSelectMode = false;
 
-    CheckBox chk_all;
-    Button btn_study;
-    Button btn_delete;
-    Button btn_import;
-
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
     private FloatingActionButton mFab;
@@ -109,64 +104,6 @@ public class BookListActivity extends AppCompatActivity implements BookAdapter.B
         mListView.setLayoutManager(layoutManager);
         mListView.setAdapter(mAdapter);
         Log.i(TAG, "setAdapter");
-
-        /*
-        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                BookAdapter.Book book = mAdapter.getItem(position);
-                String title = book.getTitle();
-
-                mDbHelper.setCurrentWordId(0);
-
-                Intent intent = new Intent(BookListActivity.this, WordListActivity.class);
-                intent.putExtra("book", title);
-                startActivity(intent);
-            }
-        });
-        */
-
-        /*
-        chk_all = (CheckBox)findViewById(R.id.chk_all);
-        chk_all.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                mAdapter.checkAll(b);
-                mAdapter.notifyDataSetChanged();
-            }
-        });
-
-        btn_study = (Button)findViewById(R.id.btn_study);
-        btn_study.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(BookListActivity.this, SequenceTestActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        btn_delete = (Button)findViewById(R.id.btn_delete);
-        btn_delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArrayList<String> checkedBooks = mAdapter.getCheckedBook();
-                if (checkedBooks.size() > 0) {
-                    mDbHelper.deleteWords(checkedBooks);
-                    mAdapter.removeCheckedItem();
-                    mAdapter.notifyDataSetChanged();
-                }
-            }
-        });
-
-        btn_import = (Button)findViewById(R.id.btn_import);
-        btn_import.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(BookListActivity.this, SheetClientActivity.class);
-                startActivity(intent);
-            }
-        });
-        */
     }
 
     @Override
