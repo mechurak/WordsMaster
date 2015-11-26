@@ -3,7 +3,6 @@ package com.shimnssso.wordsmaster.wordStudy;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,9 +10,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.shimnssso.wordsmaster.R;
+import com.shimnssso.wordsmaster.data.WordAdapter;
 import com.shimnssso.wordsmaster.util.AudioHelper;
 import com.shimnssso.wordsmaster.util.TTSHelper;
-import com.shimnssso.wordsmaster.data.WordCursorAdapter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -24,7 +23,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
     private final static String TAG = "WordCardFragment";
 
     WordListActivity mActivity = null;
-    WordCursorAdapter mAdapter = null;
+    WordAdapter mAdapter = null;
     TTSHelper mTTSHelper = null;
 
     Button btn_word_next;
@@ -60,7 +59,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
             public void onClick(View v) {
                 int mCurrentId = mAdapter.getCurrentId();
                 mCurrentId++;
-                if (mCurrentId >= mAdapter.getCount()) mCurrentId = 0;
+                if (mCurrentId >= mAdapter.getItemCount()) mCurrentId = 0;
                 mAdapter.setCurrentId(mCurrentId);
                 refreshCurrentCard();
             }
@@ -71,7 +70,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
             public void onClick(View v) {
                 int mCurrentId = mAdapter.getCurrentId();
                 mCurrentId--;
-                if (mCurrentId < 0) mCurrentId = mAdapter.getCount() - 1;
+                if (mCurrentId < 0) mCurrentId = mAdapter.getItemCount() - 1;
                 mAdapter.setCurrentId(mCurrentId);
                 refreshCurrentCard();
             }
@@ -131,7 +130,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
         txt_word_phonetic.setText(c.getString(2));
         txt_word_meaning.setText(c.getString(3));
 
-        txt_word_progress.setText( (mAdapter.getCurrentId()+1) + "/" + mAdapter.getCount() );
+        txt_word_progress.setText( (mAdapter.getCurrentId()+1) + "/" + mAdapter.getItemCount() );
 
         if (mAdapter.getVisible(WordListActivity.TYPE_SPELLING))
             txt_word_spelling.setVisibility(View.VISIBLE);

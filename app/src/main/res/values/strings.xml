@@ -7,6 +7,9 @@
     <string name="action_study">study</string>
     <string name="action_select_all">all</string>
     <string name="action_import_book">import</string>
+
+    <string name="action_card">card</string>
+
     <string name="nav_item_attachment">Attachment</string>
     <string name="nav_item_images">Images</string>
     <string name="nav_item_location">My Location</string>
@@ -17,6 +20,7 @@
     <string name="second_activity_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin consectetur diam id aliquam scelerisque. Donec ultrices lacus vel dignissim pharetra. Vivamus pharetra augue quis rhoncus placerat. Sed ultricies at risus non cursus. Nam rutrum leo nec placerat consectetur. Vestibulum feugiat eleifend diam, nec interdum augue tincidunt sit amet. Praesent feugiat est auctor lacus consectetur, vitae pellentesque dolor laoreet.</string>
     <string name="title_activity_second">SecondActivity</string>
     <string name="title_book_list">Book List</string>
-    <string name="title_word_list">Word List</string>
+    <string name="title_word_list">List Mode</string>
+    <string name="title_word_card">Card Mode</string>
     <string name="title_sheet_list">Sheet List</string>
 </resources>

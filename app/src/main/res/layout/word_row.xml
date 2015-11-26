@@ -1,65 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1">
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:id="@+id/chk"
-            android:focusable ="false"
-            android:layout_gravity="center"
-            android:layout_weight="1" />
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:id="@+id/chk_star"
-            android:focusable ="false"
-            android:layout_gravity="center"
-            android:layout_weight="1" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="0dp"
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardview"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="8">
+        android:minHeight="75dp"
+        android:layout_margin="3dp"
+        android:foreground="?attr/selectableItemBackground"
+        card_view:cardCornerRadius="3dp"
+        card_view:cardElevation="2dp"
+        card_view:contentPadding="2dp">
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="tempSpelling"
-            android:id="@+id/spelling" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:minHeight="75dp"
+            android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="tempPhonetic"
-            android:id="@+id/phonetic"
-            android:layout_marginLeft="10dp" />
+            <CheckBox
+                android:id="@+id/starred"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:focusable="false" />
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:id="@+id/meaning"
-            android:layout_height="wrap_content"
-            android:text="tempMeaning"
-            android:layout_marginLeft="10dp" />
-    </LinearLayout>
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left|top"
+                android:orientation="vertical">
 
-    <Button
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="p"
-        android:id="@+id/button"
-        android:focusable ="false"
-        android:layout_gravity="center"
-        android:layout_weight="1" />
+                <TextView
+                    android:id="@+id/spelling"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="tempSpelling"
+                    android:textAppearance="?android:attr/textAppearanceLarge" />
+
+                <TextView
+                    android:id="@+id/phonetic"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="tempPhonetic"
+                    android:textAppearance="?android:attr/textAppearanceSmall" />
+
+                <TextView
+                    android:id="@+id/meaning"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="tempMeaning" />
+            </LinearLayout>
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
 </LinearLayout>

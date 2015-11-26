@@ -3,10 +3,12 @@ package com.shimnssso.wordsmaster.wordStudy;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -15,13 +17,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
-import com.shimnssso.wordsmaster.data.WordCursorAdapter;
+import com.shimnssso.wordsmaster.data.WordAdapter;
 import com.shimnssso.wordsmaster.util.TTSHelper;
 
 public class WordListActivity extends AppCompatActivity {
@@ -38,8 +41,8 @@ public class WordListActivity extends AppCompatActivity {
     private Fragment mCurrentFragment = null;
     Cursor cursor = null;
 
-    WordCursorAdapter mAdapter = null;
-    public WordCursorAdapter getAdapter() {
+    WordAdapter mAdapter = null;
+    public WordAdapter getAdapter() {
         return mAdapter;
     }
 
@@ -71,6 +74,21 @@ public class WordListActivity extends AppCompatActivity {
                 toolbar,
                 R.string.title_word_list,
                 R.string.title_word_list);
+
+
+        mDrawerToggle.setToolbarNavigationClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // event when click home button
+                Log.e(TAG, "onClick");
+                mDrawerToggle.setDrawerIndicatorEnabled(true);
+                getSupportActionBar().setTitle(R.string.title_word_list);
+                invalidateOptionsMenu();
+
+                replaceFragment(WORD_LIST_FRAGMENT);
+            }
+        });
+
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
@@ -90,7 +108,7 @@ public class WordListActivity extends AppCompatActivity {
 
         mDbHelper = DbHelper.getInstance();
         cursor = mDbHelper.getWordList(bookTitle);
-        mAdapter = new WordCursorAdapter(this, cursor, 0);
+        mAdapter = new WordAdapter(this, cursor);
 
         /*
         chk_all = (CheckBox)findViewById(R.id.chk_all);
@@ -195,6 +213,10 @@ public class WordListActivity extends AppCompatActivity {
     public void onBackPressed() {
         Log.d(TAG, "back button is pressed");
         if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
+            mDrawerToggle.setDrawerIndicatorEnabled(true);
+            getSupportActionBar().setTitle(R.string.title_word_list);
+            invalidateOptionsMenu();
+
             replaceFragment(WORD_LIST_FRAGMENT);
             return;
         }
@@ -203,7 +225,12 @@ public class WordListActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        if (mCurrentFragmentIndex==WORD_LIST_FRAGMENT) {
+            getMenuInflater().inflate(R.menu.word_list, menu);
+        }
+        else {
+            getMenuInflater().inflate(R.menu.menu_main, menu);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -231,6 +258,13 @@ public class WordListActivity extends AppCompatActivity {
         switch (id) {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+
+            case R.id.action_card:
+                mDrawerToggle.setDrawerIndicatorEnabled(false);
+                getSupportActionBar().setTitle(R.string.title_word_card);
+                replaceFragment(WORD_CARD_FRAGMENT);
+
                 return true;
             /*
             case R.id.action_settings:
