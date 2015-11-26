@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.shimnssso.wordsmaster.R;
-import com.shimnssso.wordsmaster.data.WordAdapter;
 import com.shimnssso.wordsmaster.util.TTSHelper;
 
 public class WordListFragment extends Fragment implements WordListActivity.WordInterface {

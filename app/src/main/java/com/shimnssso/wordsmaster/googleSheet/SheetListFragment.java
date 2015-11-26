@@ -10,7 +10,6 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.shimnssso.wordsmaster.R;
-import com.shimnssso.wordsmaster.data.SheetAdapter;
 
 
 public class SheetListFragment extends Fragment{

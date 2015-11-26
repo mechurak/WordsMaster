@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.shimnssso.wordsmaster.R;
-import com.shimnssso.wordsmaster.data.BookAdapter;
+import com.shimnssso.wordsmaster.BookAdapter;
 
 public class SheetBookFragment extends Fragment {
     private final static String TAG = "SheetBookFragment";

@@ -1,4 +1,4 @@
-package com.shimnssso.wordsmaster.data;
+package com.shimnssso.wordsmaster.wordStudy;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -15,8 +15,9 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.shimnssso.wordsmaster.R;
+import com.shimnssso.wordsmaster.data.DbHelper;
+import com.shimnssso.wordsmaster.data.DbMeta;
 import com.shimnssso.wordsmaster.util.TTSHelper;
-import com.shimnssso.wordsmaster.wordStudy.WordListActivity;
 
 public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
     private static final String TAG = "WordAdapter";

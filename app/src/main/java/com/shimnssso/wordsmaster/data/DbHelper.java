@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.shimnssso.wordsmaster.BookAdapter;
 import com.shimnssso.wordsmaster.data.DbMeta.GlobalTableMeta;
 import com.shimnssso.wordsmaster.data.DbMeta.WordTableMeta;
 

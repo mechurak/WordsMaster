@@ -37,10 +37,9 @@ import com.google.gdata.data.DateTime;
 import com.google.gdata.data.spreadsheet.*;
 import com.google.gdata.util.*;
 import com.shimnssso.wordsmaster.R;
-import com.shimnssso.wordsmaster.data.BookAdapter;
+import com.shimnssso.wordsmaster.BookAdapter;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.data.DbMeta;
-import com.shimnssso.wordsmaster.data.SheetAdapter;
 
 import java.io.IOException;
 import java.net.URI;

@@ -10,7 +10,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.shimnssso.wordsmaster.R;
-import com.shimnssso.wordsmaster.data.WordAdapter;
 import com.shimnssso.wordsmaster.util.AudioHelper;
 import com.shimnssso.wordsmaster.util.TTSHelper;
 

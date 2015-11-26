@@ -3,12 +3,10 @@ package com.shimnssso.wordsmaster.wordStudy;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -24,7 +22,6 @@ import android.widget.Toast;
 
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
-import com.shimnssso.wordsmaster.data.WordAdapter;
 import com.shimnssso.wordsmaster.util.TTSHelper;
 
 public class WordListActivity extends AppCompatActivity {

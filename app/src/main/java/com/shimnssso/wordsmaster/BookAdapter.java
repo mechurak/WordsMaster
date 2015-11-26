@@ -1,4 +1,4 @@
-package com.shimnssso.wordsmaster.data;
+package com.shimnssso.wordsmaster;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.wordStudy.WordListActivity;
 
 import java.util.ArrayList;
