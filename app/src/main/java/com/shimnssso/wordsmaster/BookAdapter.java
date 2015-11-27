@@ -142,26 +142,20 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
             size = (TextView)itemView.findViewById(R.id.size);
             cardView=(CardView)itemView.findViewById(R.id.cardview);
 
-            itemView.setClickable(true);
-
-            // Handle item click and set the selection
-            itemView.setOnClickListener(new View.OnClickListener() {
+            cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.e(TAG, "onClick. test" );
+                    final int position = getAdapterPosition();
+                    Log.d(TAG, "onClick. position: " + position);
 
                     if (mSelectedItemNum > 0 || parentLayout == R.layout.sheet_list) {
-                        RecyclerView parentView = (RecyclerView)itemView.getParent();
-                        int position = parentView.getChildAdapterPosition(v);
                         boolean isChecked = check(position);
                         notifyItemChanged(position);
                         if (isChecked) mSelectedItemNum++;
                         else mSelectedItemNum--;
 
                         if (mListener != null) mListener.onSelectedNumChanged(mSelectedItemNum);
-                    }
-
-                    else {
+                    } else {
                         Log.e(TAG, "onClick in non select mode");
                         Intent intent = new Intent(mContext, WordListActivity.class);
                         intent.putExtra("book", title.getText());
@@ -170,12 +164,11 @@ public class BookAdapter extends RecyclerView.Adapter<BookAdapter.ViewHolder> {
                 }
             });
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            cardView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    Log.e(TAG, "onLongClick");
-                    RecyclerView parentView = (RecyclerView)itemView.getParent();
-                    int position = parentView.getChildAdapterPosition(v);
+                    final int position = getAdapterPosition();
+                    Log.d(TAG, "onLongClick. position: " + position);
                     boolean isChecked = check(position);
                     notifyItemChanged(position);
                     if (isChecked) mSelectedItemNum++;

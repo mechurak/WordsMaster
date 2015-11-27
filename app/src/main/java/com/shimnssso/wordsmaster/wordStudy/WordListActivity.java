@@ -37,13 +37,13 @@ public class WordListActivity extends AppCompatActivity {
     private TTSHelper mTTSHelper = null;
     private Fragment mCurrentFragment = null;
     Cursor cursor = null;
+    private String mBookTitle = null;
 
     WordAdapter mAdapter = null;
     public WordAdapter getAdapter() {
         return mAdapter;
     }
 
-    CheckBox chk_all;
     CheckBox chk_word_spelling;
     CheckBox chk_word_phonetic;
     CheckBox chk_word_meaning;
@@ -52,6 +52,7 @@ public class WordListActivity extends AppCompatActivity {
     private ActionBarDrawerToggle mDrawerToggle;
 
     int mCurrentFragmentIndex = WORD_LIST_FRAGMENT;
+    private boolean mStarredMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,11 +101,12 @@ public class WordListActivity extends AppCompatActivity {
         });
 
         Intent intent = getIntent();
-        String bookTitle = intent.getStringExtra("book");
-        Log.i(TAG, "bookTitle: " + bookTitle);
+        mBookTitle = intent.getStringExtra("book");
+        Log.i(TAG, "bookTitle: " + mBookTitle);
 
         mDbHelper = DbHelper.getInstance();
-        cursor = mDbHelper.getWordList(bookTitle);
+        cursor = mDbHelper.getWordList(mBookTitle);
+        //cursor = mDbHelper.getStarredWordList(bookTitle);
         mAdapter = new WordAdapter(this, cursor);
 
         /*
@@ -224,6 +226,7 @@ public class WordListActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         if (mCurrentFragmentIndex==WORD_LIST_FRAGMENT) {
             getMenuInflater().inflate(R.menu.word_list, menu);
+
         }
         else {
             getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -260,9 +263,30 @@ public class WordListActivity extends AppCompatActivity {
             case R.id.action_card:
                 mDrawerToggle.setDrawerIndicatorEnabled(false);
                 getSupportActionBar().setTitle(R.string.title_word_card);
+                invalidateOptionsMenu();
+
                 replaceFragment(WORD_CARD_FRAGMENT);
 
                 return true;
+
+            case R.id.action_starred:
+                if (mStarredMode) {
+                    item.setTitle(R.string.action_starred_only);
+                    cursor.close();
+                    cursor = mDbHelper.getWordList(mBookTitle);
+                    mAdapter = new WordAdapter(this, cursor);
+                    mStarredMode = false;
+                }
+                else {
+                    item.setTitle(R.string.action_starred_all);
+                    cursor.close();
+                    cursor = mDbHelper.getStarredWordList(mBookTitle);
+                    mAdapter = new WordAdapter(this, cursor);
+                    mStarredMode = true;
+                }
+                replaceFragment(mCurrentFragmentIndex);
+                return true;
+
             /*
             case R.id.action_settings:
                 return true;

@@ -94,6 +94,11 @@ public class DbHelper extends SQLiteOpenHelper {
         return db.query(WordTableMeta.TABLE_NAME, null, WordTableMeta.CATEGORY+"='"+book+"'", null, null, null, null);
     }
 
+    public Cursor getStarredWordList(String book) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.query(WordTableMeta.TABLE_NAME, null, WordTableMeta.CATEGORY+"='"+book+"' AND "
+                + WordTableMeta.FLAG+" & "+ DbMeta.WordFlag.STARRED+" = " + DbMeta.WordFlag.STARRED, null, null, null, null);
+    }
 
     public void deleteWords(String sheetTitle, ArrayList<String> titleList) {
         SQLiteDatabase db = this.getWritableDatabase();
