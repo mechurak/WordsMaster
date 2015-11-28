@@ -26,6 +26,7 @@ import com.shimnssso.wordsmaster.ForegroundService;
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.util.TTSHelper;
+import com.shimnssso.wordsmaster.wordTest.OrderTestActivity;
 
 public class WordListActivity extends AppCompatActivity {
     private final static String TAG = "WordListActivity";
@@ -269,13 +270,15 @@ public class WordListActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.word_list, menu);
         if (mCurrentFragmentIndex==WORD_LIST_FRAGMENT) {
-            getMenuInflater().inflate(R.menu.word_list, menu);
 
         }
         else {
-            getMenuInflater().inflate(R.menu.menu_main, menu);
+            menu.removeItem(R.id.action_starred);
+            menu.removeItem(R.id.action_card);
         }
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -345,6 +348,13 @@ public class WordListActivity extends AppCompatActivity {
                     mStarredMode = true;
                 }
                 replaceFragment(mCurrentFragmentIndex);
+                return true;
+
+            case R.id.action_order_test:
+                Intent intent = new Intent(getApplicationContext(), OrderTestActivity.class);
+                Cursor c = (Cursor)mAdapter.getItem();
+                intent.putExtra("word", c.getString(2));
+                startActivity(intent);
                 return true;
 
             /*
