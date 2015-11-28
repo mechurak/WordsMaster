@@ -16,6 +16,7 @@
 
         <activity
             android:name=".BookListActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,16 +27,19 @@
 
         <activity
             android:name=".wordStudy.WordListActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/app_name" >
         </activity>
 
         <activity
             android:name=".googleSheet.SheetClientActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/app_name" >
         </activity>
 
         <activity
             android:name=".wordTest.SequenceTestActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/app_name" >
         </activity>
 

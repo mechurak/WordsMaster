@@ -22,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
+import com.shimnssso.wordsmaster.ForegroundService;
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.util.TTSHelper;
@@ -184,6 +185,10 @@ public class WordListActivity extends AppCompatActivity {
                 }
             }
         };
+
+        // start ForegroundService
+        Intent startIntent = new Intent(this, ForegroundService.class);
+        startService(startIntent);
     }
 
     @Override
@@ -207,10 +212,12 @@ public class WordListActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         Log.i(TAG, "onDestroy");
-
         mDbHelper.close();
+        Intent stopIntent = new Intent(this, ForegroundService.class);
+        stopService(stopIntent);
+
+        super.onDestroy();
     }
 
 

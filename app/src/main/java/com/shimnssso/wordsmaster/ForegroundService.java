@@ -16,6 +16,9 @@ public class ForegroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String action = intent.getAction();
+        if (action == null) {
+            return START_REDELIVER_INTENT;
+        }
         switch (action) {
             case Constants.Action.TTS: {
                 String spelling = intent.getStringExtra("spelling");
@@ -98,6 +101,13 @@ public class ForegroundService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        Log.d(TAG, "onCreate");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy");
     }
 
     @Override
