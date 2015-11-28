@@ -160,4 +160,14 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
         mAdapter.setVisible(type, visible);
         refreshCurrentCard();
     }
+
+    @Override
+    public void moveTo(int position) {
+
+    }
+
+    @Override
+    public void play(int position) {
+
+    }
 }

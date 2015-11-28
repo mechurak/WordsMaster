@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -33,6 +35,10 @@ public class WordListActivity extends AppCompatActivity {
     public final static int TYPE_PHONETIC = 101;
     public final static int TYPE_MEANING = 102;
 
+    public final static int MSG_PLAY_DONE = 1000;
+    public final static int MSG_PLAY_READY = 1001;
+
+    public static Handler mHandler = null;
     private DbHelper mDbHelper = null;
     private TTSHelper mTTSHelper = null;
     private Fragment mCurrentFragment = null;
@@ -53,6 +59,7 @@ public class WordListActivity extends AppCompatActivity {
 
     int mCurrentFragmentIndex = WORD_LIST_FRAGMENT;
     private boolean mStarredMode = false;
+    private boolean mPlayMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,12 +147,43 @@ public class WordListActivity extends AppCompatActivity {
         chk_word_meaning.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                WordInterface temp = (WordInterface)mCurrentFragment;
+                WordInterface temp = (WordInterface) mCurrentFragment;
                 temp.setVisible(TYPE_MEANING, isChecked);
             }
         });
 
         replaceFragment(mCurrentFragmentIndex);
+
+        mHandler = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                super.handleMessage(msg);
+                WordInterface temp = (WordInterface)mCurrentFragment;
+
+                switch (msg.what) {
+                    case MSG_PLAY_DONE:
+                        Log.d(TAG, "received MSG_PLAY_DONE");
+                        if (!mPlayMode) break;
+
+                        int nextPosition = mAdapter.getCurrentId()+1;
+                        if (nextPosition >= mAdapter.getItemCount()) nextPosition = 0;
+                        temp.moveTo(nextPosition);
+                        Message m = mHandler.obtainMessage(MSG_PLAY_READY, nextPosition, 0);
+                        mHandler.sendMessageDelayed(m, 50);
+                        break;
+
+                    case MSG_PLAY_READY:
+                        Log.d(TAG, "received MSG_PLAY_READY. position: " + msg.arg1);
+                        if (!mPlayMode) break;
+
+                        temp.play(msg.arg1);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        };
     }
 
     @Override
@@ -269,6 +307,21 @@ public class WordListActivity extends AppCompatActivity {
 
                 return true;
 
+            case R.id.action_play:
+                if (mPlayMode) {
+                    item.setTitle(R.string.action_play);
+                    mPlayMode = false;
+
+                }
+                else {
+                    item.setTitle(R.string.action_stop);
+                    mPlayMode = true;
+
+                    WordInterface temp = (WordInterface)mCurrentFragment;
+                    temp.play(mAdapter.getCurrentId());
+                }
+                return true;
+
             case R.id.action_starred:
                 if (mStarredMode) {
                     item.setTitle(R.string.action_starred_only);
@@ -302,5 +355,7 @@ public class WordListActivity extends AppCompatActivity {
 
     public interface WordInterface {
         void setVisible(int type, boolean visible);
+        void moveTo(int position);
+        void play(int position);
     }
 }

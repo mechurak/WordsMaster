@@ -35,8 +35,6 @@ public class WordListFragment extends Fragment implements WordListActivity.WordI
         mListView.setAdapter(mAdapter);
         Log.i(TAG, "setAdapter");
 
-        //mListView.smoothScrollToPosition(mActivity.getCurrentId());
-        //mListView.setSelection(mAdapter.getCurrentId());
         mListView.smoothScrollToPosition(mAdapter.getCurrentId());
         return v;
     }
@@ -55,5 +53,18 @@ public class WordListFragment extends Fragment implements WordListActivity.WordI
         }
         mListView.setSelection(mAdapter.getCurrentId());
         */
+    }
+
+    @Override
+    public void moveTo(int position) {
+        mListView.scrollToPosition(position);
+    }
+
+    @Override
+    public void play(int position) {
+        WordAdapter.ViewHolder holder = (WordAdapter.ViewHolder)mListView.findViewHolderForAdapterPosition(position);
+        if (holder != null) {
+            holder.cardView.performClick();
+        }
     }
 }

@@ -5,6 +5,8 @@ import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.util.Log;
 
+import com.shimnssso.wordsmaster.wordStudy.WordListActivity;
+
 import java.io.IOException;
 
 public class AudioHelper {
@@ -52,8 +54,10 @@ public class AudioHelper {
             mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
+                    Log.d(TAG, "onCompletion. " + mp);
                     mPlayer.release();
                     mPlayer = null;
+                    WordListActivity.mHandler.sendEmptyMessageDelayed(WordListActivity.MSG_PLAY_DONE, 500);
                 }
             });
         } catch (IOException e) {

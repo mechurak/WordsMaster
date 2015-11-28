@@ -2,6 +2,7 @@ package com.shimnssso.wordsmaster.wordStudy;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
@@ -14,10 +15,17 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
+import com.shimnssso.wordsmaster.Constants;
+import com.shimnssso.wordsmaster.ForegroundService;
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.data.DbMeta;
 import com.shimnssso.wordsmaster.util.TTSHelper;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
     private static final String TAG = "WordAdapter";
@@ -117,10 +125,20 @@ public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
                     Log.d(TAG, "position: " + position + ", cursor: " + mCursor.getPosition());
                     mCursor.moveToPosition(position);
                     String spelling = mCursor.getString(1);
-                    TTSHelper ttsHelper = TTSHelper.getInstance(mContext);
-                    if (ttsHelper != null) {
-                        ttsHelper.speak(spelling);
+
+                    Intent intent = new Intent(mContext, ForegroundService.class);
+                    intent.putExtra("spelling", spelling);
+                    try {
+                        FileInputStream fis = new FileInputStream (new File(mContext.getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3"));
+                        fis.close();
+                        intent.setAction(Constants.Action.PLAY);
+                    } catch (FileNotFoundException e) {
+                        intent.setAction(Constants.Action.TTS);
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
+                    mContext.startService(intent);
+
                     int prevPosition = mCurPosition;
                     mCurPosition = position;
                     notifyItemChanged(prevPosition);
