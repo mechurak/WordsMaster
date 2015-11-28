@@ -2,7 +2,6 @@ package com.shimnssso.wordsmaster.wordTest;
 
 import android.content.Context;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,19 +21,33 @@ public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.View
     private Context mContext;
     private String mWords;
     private List<String> mItems;
-
-
+    private List<Integer> mWidths;
 
     public WordBlockAdapter(Context context, String words) {
         mContext = context;
         mWords = words;
+
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.word_block, null, false);
+
         String[] wordArray = mWords.split(" ");
-        mItems = new ArrayList<String>();
+        mItems = new ArrayList<>();
+        mWidths = new ArrayList<>();
         for (String s : wordArray) {
             mItems.add(s);
+
+            TextView textView = (TextView)view.findViewById(R.id.word);
+            textView.setText(s);
+            CardView cardView = (CardView)view.findViewById(R.id.cardview);
+
+            cardView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            Log.d(TAG, "cardView width: " + cardView.getMeasuredWidth());
+            mWidths.add(cardView.getMeasuredWidth()+30);
         }
+    }
 
-
+    public int getViewWidth(int position) {
+        return mWidths.get(position);
     }
 
     @Override
@@ -59,10 +72,12 @@ public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.View
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(mItems, i, i + 1);
+                Collections.swap(mWidths, i, i + 1);
             }
         } else {
             for (int i = fromPosition; i > toPosition; i--) {
                 Collections.swap(mItems, i, i - 1);
+                Collections.swap(mWidths, i, i - 1);
             }
         }
         notifyItemMoved(fromPosition, toPosition);

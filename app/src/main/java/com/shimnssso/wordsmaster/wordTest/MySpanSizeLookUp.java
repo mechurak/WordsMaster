@@ -1,36 +1,25 @@
 package com.shimnssso.wordsmaster.wordTest;
 
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
 public class MySpanSizeLookUp extends GridLayoutManager.SpanSizeLookup {
     private static final String TAG = "MySpanSizeLookUp";
 
-    private RecyclerView mRecyclerView;
+    private WordBlockAdapter mAdapter;
     private int unit;
-    private int maxSpan;
 
-    public MySpanSizeLookUp(RecyclerView recyclerView, int maxSpan) {
-        this.mRecyclerView = recyclerView;
-        this.maxSpan = maxSpan;
-        unit = mRecyclerView.getWidth()/maxSpan;
-        Log.d(TAG, "unit: " + unit);
+    public MySpanSizeLookUp(WordBlockAdapter adapter, int maxSpan, int deviceWidth) {
+        this.mAdapter = adapter;
+        unit = deviceWidth / maxSpan ;
+        Log.d(TAG, "deviceWidth: " + deviceWidth + ", unit: " + unit);
     }
 
     @Override
     public int getSpanSize(int position) {
+        int width = mAdapter.getViewWidth(position);
 
-        WordBlockAdapter.ViewHolder holder = (WordBlockAdapter.ViewHolder)mRecyclerView.findViewHolderForAdapterPosition(position);
-        if (holder == null) {
-            return maxSpan;
-        }
-
-        int width = holder.cardView.getWidth();
         int span = 1;
-
-        unit = mRecyclerView.getWidth()/maxSpan;
-
         while (width > unit * span) {
             span++;
         }

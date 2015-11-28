@@ -11,9 +11,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -82,12 +82,12 @@ public class OrderTestActivity extends AppCompatActivity{
         mAdapter = new WordBlockAdapter(OrderTestActivity.this, word);
 
         mMixedRecyclerView = (RecyclerView)findViewById(R.id.list_mixed);
-        //final StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(5,StaggeredGridLayoutManager.VERTICAL);
-        //layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
-
-        layoutManager = new GridLayoutManager(this, 10, LinearLayoutManager.VERTICAL, false);
-        //mySpanSizeLookUp = new MySpanSizeLookUp(mMixedRecyclerView, 10);
-        //layoutManager.setSpanSizeLookup(mySpanSizeLookUp);
+        layoutManager = new GridLayoutManager(this, 30, LinearLayoutManager.VERTICAL, false);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int deviceWidth = displayMetrics.widthPixels;
+        mySpanSizeLookUp = new MySpanSizeLookUp(mAdapter, 30, deviceWidth);
+        layoutManager.setSpanSizeLookup(mySpanSizeLookUp);
         mMixedRecyclerView.setAdapter(mAdapter);
         mMixedRecyclerView.setLayoutManager(layoutManager);
 
@@ -116,9 +116,6 @@ public class OrderTestActivity extends AppCompatActivity{
 
         // Sync the toggle state after onRestoreInstanceState has occurred.
         mDrawerToggle.syncState();
-
-        //mAdapter.notifyDataSetChanged();
-        //mySpanSizeLookUp.invalidateSpanIndexCache();
     }
 
     @Override
@@ -139,10 +136,7 @@ public class OrderTestActivity extends AppCompatActivity{
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
-            case R.id.action_settings:
-                layoutManager.requestLayout();
         }
-
 
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;

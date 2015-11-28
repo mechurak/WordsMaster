@@ -42,7 +42,6 @@ public class WordListActivity extends AppCompatActivity {
 
     public static Handler mHandler = null;
     private DbHelper mDbHelper = null;
-    private TTSHelper mTTSHelper = null;
     private Fragment mCurrentFragment = null;
     Cursor cursor = null;
     private String mBookTitle = null;
@@ -198,7 +197,6 @@ public class WordListActivity extends AppCompatActivity {
         Log.i(TAG, "onResume");
         int currentId = mDbHelper.getCurrentWordId();
         mAdapter.setCurrentId(currentId);
-        mTTSHelper = TTSHelper.getInstance(getApplicationContext());
     }
 
     @Override
@@ -206,9 +204,6 @@ public class WordListActivity extends AppCompatActivity {
         super.onPause();
         Log.i(TAG, "onPause");
         mDbHelper.setCurrentWordId(mAdapter.getCurrentId());
-        if (mTTSHelper != null) {
-            mTTSHelper.destroy();
-        }
     }
 
     @Override
