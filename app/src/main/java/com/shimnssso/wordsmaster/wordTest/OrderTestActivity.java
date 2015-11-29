@@ -100,21 +100,44 @@ public class OrderTestActivity extends AppCompatActivity{
         mAdapter = new WordBlockAdapter(OrderTestActivity.this, mPhonetic, false);
 
         mMixedRecyclerView = (RecyclerView)findViewById(R.id.list_mixed);
+
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new
+                ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0) {
+                    @Override
+                    public boolean onMove(
+                            final RecyclerView recyclerView,
+                            final RecyclerView.ViewHolder viewHolder,
+                            final RecyclerView.ViewHolder target) {
+                        mAdapter.onItemMove(viewHolder.getAdapterPosition(), target.getAdapterPosition());
+                        return true;
+                    }
+
+                    @Override
+                    public void onSwiped(
+                            final RecyclerView.ViewHolder viewHolder,
+                            final int swipeDir) {
+                    }
+
+                    @Override
+                    public boolean isLongPressDragEnabled() {
+                        return true;
+                    }
+                };
+
+        ItemTouchHelper newTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        newTouchHelper.attachToRecyclerView(mMixedRecyclerView);
+
+
         layoutManager = new GridLayoutManager(this, 100, LinearLayoutManager.VERTICAL, false);
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int deviceWidth = displayMetrics.widthPixels;
         mySpanSizeLookUp = new MySpanSizeLookUp(mAdapter, 100, deviceWidth);
         layoutManager.setSpanSizeLookup(mySpanSizeLookUp);
-        mMixedRecyclerView.setAdapter(mAdapter);
         mMixedRecyclerView.setLayoutManager(layoutManager);
+        mMixedRecyclerView.setAdapter(mAdapter);
 
         Log.i(TAG, "setAdapter");
-
-        MyItemTouchCallback callback = new MyItemTouchCallback(mAdapter);
-        ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-        touchHelper.attachToRecyclerView(mMixedRecyclerView);
-
 
         txt_spelling = (TextView)findViewById(R.id.txt_spelling);
         txt_spelling.setText(mSpelling);
@@ -199,13 +222,13 @@ public class OrderTestActivity extends AppCompatActivity{
 
             case R.id.action_order_type:
                 if (mSpellingMode) {
-                    item.setTitle(R.string.action_order_type_phonetic);
+                    item.setTitle(R.string.action_order_type_spelling);
                     mAdapter = new WordBlockAdapter(OrderTestActivity.this, mPhonetic, false);
                     mSpellingMode = false;
 
                 }
                 else {
-                    item.setTitle(R.string.action_order_type_spelling);
+                    item.setTitle(R.string.action_order_type_phonetic);
                     mAdapter = new WordBlockAdapter(OrderTestActivity.this, mSpelling, true);
                     mSpellingMode = true;
                 }
@@ -216,15 +239,8 @@ public class OrderTestActivity extends AppCompatActivity{
                 int deviceWidth = displayMetrics.widthPixels;
                 mySpanSizeLookUp = new MySpanSizeLookUp(mAdapter, 100, deviceWidth);
                 layoutManager.setSpanSizeLookup(mySpanSizeLookUp);
-                mMixedRecyclerView.setAdapter(mAdapter);
                 mMixedRecyclerView.setLayoutManager(layoutManager);
-
-                Log.i(TAG, "setAdapter");
-
-                MyItemTouchCallback callback = new MyItemTouchCallback(mAdapter);
-                ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-                touchHelper.attachToRecyclerView(mMixedRecyclerView);
-
+                mMixedRecyclerView.setAdapter(mAdapter);
                 return true;
         }
 

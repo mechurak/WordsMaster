@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.ViewHolder> implements MyItemTouchCallback.ItemTouchHelperAdapter {
+public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.ViewHolder> {
     private static final String TAG = "WordBlockAdapter";
 
     public static final int ITEM_TYPE_BASE_LINE = 0;
@@ -46,11 +46,17 @@ public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.View
         else {
             wordArray = mWords.split(" ");
         }
+        Log.e(TAG, "wordArray size: " + wordArray.length);
+
         mItems_new = new ArrayList<>();
         mAnswer = new ArrayList<>();
         for (String s : wordArray) {
-            if (s.equals("")) {
-                Log.d(TAG, "continue. length:" + s.length());
+            if (s.length() <= 0 ) {
+                Log.d(TAG, "continue. length:" + s.length() + ", " + s);
+                continue;
+            }
+            if (isChinese && s.equals(" ")) {
+                Log.d(TAG, "continue. length:" + s.length() + ", " + s);
                 continue;
             }
 
@@ -66,6 +72,8 @@ public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.View
         mBaseLineItem = new Item("== answer ==", 0);
         mItems_new.add(mBaseLineItem);
         mBaseLinePosition = mItems_new.indexOf(mBaseLineItem);
+        Log.e(TAG, "mItems_new size: " + mItems_new.size());
+        Log.e(TAG, "mBaseLinePosition: " + mBaseLinePosition);
     }
 
     public int getViewWidth(int position) {
@@ -114,8 +122,9 @@ public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.View
         return mItems_new.size();
     }
 
-    @Override
     public void onItemMove(int fromPosition, int toPosition) {
+        Log.d(TAG, "before. from " + fromPosition + ", to " + toPosition + ", base " + mBaseLinePosition);
+        Log.d(TAG, "mItems_new size " + mItems_new.size());
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(mItems_new, i, i + 1);
