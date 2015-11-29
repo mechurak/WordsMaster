@@ -89,10 +89,10 @@ public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
             holder.meaning.setVisibility(View.GONE);
 
         if (position == mCurPosition) {
-            holder.cardView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.theme2_primary));
+            holder.cardView.setCardBackgroundColor(ContextCompat.getColor(mContext, R.color.theme2_primary));
         }
         else {
-            holder.cardView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.background_floating_material_light));
+            holder.cardView.setCardBackgroundColor(ContextCompat.getColor(mContext, R.color.background_floating_material_light));
         }
     }
 

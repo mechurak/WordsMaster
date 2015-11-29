@@ -1,12 +1,15 @@
 package com.shimnssso.wordsmaster.wordTest;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.shimnssso.wordsmaster.R;
@@ -14,14 +17,20 @@ import com.shimnssso.wordsmaster.R;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.ViewHolder> implements MyItemTouchCallback.ItemTouchHelperAdapter {
     private static final String TAG = "WordBlockAdapter";
 
+    public static final int ITEM_TYPE_BASE_LINE = 0;
+    public static final int ITEM_TYPE_DEFAULT = 1;
+
     private Context mContext;
     private String mWords;
-    private List<String> mItems;
-    private List<Integer> mWidths;
+    private List<Item> mItems_new;
+    private List<String> mAnswer;
+    private int mBaseLinePosition;
+    private Item mBaseLineItem;
 
     public WordBlockAdapter(Context context, String words) {
         mContext = context;
@@ -31,23 +40,25 @@ public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.View
         View view = inflater.inflate(R.layout.word_block, null, false);
 
         String[] wordArray = mWords.split(" ");
-        mItems = new ArrayList<>();
-        mWidths = new ArrayList<>();
+        mItems_new = new ArrayList<>();
+        mAnswer = new ArrayList<>();
         for (String s : wordArray) {
-            mItems.add(s);
-
+            mAnswer.add(s);
             TextView textView = (TextView)view.findViewById(R.id.word);
             textView.setText(s);
-            CardView cardView = (CardView)view.findViewById(R.id.cardview);
-
-            cardView.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
-            Log.d(TAG, "cardView width: " + cardView.getMeasuredWidth());
-            mWidths.add(cardView.getMeasuredWidth()+30);
+            view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+            Log.d(TAG, "view width: " + view.getMeasuredWidth());
+            mItems_new.add(new Item(s, view.getMeasuredWidth()));
         }
+        Random random = new Random(System.currentTimeMillis());
+        Collections.shuffle(mItems_new, random);
+        mBaseLineItem = new Item("== answer ==", 0);
+        mItems_new.add(mBaseLineItem);
+        mBaseLinePosition = mItems_new.indexOf(mBaseLineItem);
     }
 
     public int getViewWidth(int position) {
-        return mWidths.get(position);
+        return mItems_new.get(position).width;
     }
 
     @Override
@@ -59,28 +70,63 @@ public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.word.setText(mItems.get(position));
+        holder.word.setText(mItems_new.get(position).word);
+        if (mBaseLinePosition == position) {
+            holder.cardView.setCardBackgroundColor(Color.GRAY);
+            holder.cardView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        }
+        else if (mBaseLinePosition < position) {
+            // check the position is currect
+            int index = position - mBaseLinePosition - 1;
+            if (mItems_new.get(position).word.equals(mAnswer.get(index))) {
+                holder.cardView.setCardBackgroundColor(ContextCompat.getColor(mContext, R.color.theme2_primary));
+            }
+            else {
+                holder.cardView.setCardBackgroundColor(Color.RED);
+            }
+        }
+        else if (mBaseLinePosition > position) {
+            holder.cardView.setCardBackgroundColor(Color.WHITE);
+        }
+
+
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (mBaseLinePosition == position) return ITEM_TYPE_BASE_LINE;
+        else return ITEM_TYPE_DEFAULT;
     }
 
     @Override
     public int getItemCount() {
-        return mItems.size();
+        return mItems_new.size();
     }
 
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
-                Collections.swap(mItems, i, i + 1);
-                Collections.swap(mWidths, i, i + 1);
+                Collections.swap(mItems_new, i, i + 1);
+                //Collections.swap(mWidths, i, i + 1);
             }
         } else {
             for (int i = fromPosition; i > toPosition; i--) {
-                Collections.swap(mItems, i, i - 1);
-                Collections.swap(mWidths, i, i - 1);
+                Collections.swap(mItems_new, i, i - 1);
+                //Collections.swap(mWidths, i, i - 1);
             }
         }
+        //mBaseLinePosition = mItems.indexOf("== answer ==");
+        mBaseLinePosition = mItems_new.indexOf(mBaseLineItem);
         notifyItemMoved(fromPosition, toPosition);
+        notifyItemChanged(toPosition);
+        if (toPosition > mBaseLinePosition && fromPosition > mBaseLinePosition) {
+            int min = (fromPosition<toPosition) ? fromPosition : toPosition;
+            notifyItemRangeChanged(min, mItems_new.size() - min);
+        }
+        else if (toPosition < mBaseLinePosition && fromPosition > mBaseLinePosition) {
+            notifyItemRangeChanged(fromPosition, mItems_new.size() - fromPosition);
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -92,6 +138,31 @@ public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.View
 
             cardView = (CardView) itemView.findViewById(R.id.cardview);
             word = (TextView) itemView.findViewById(R.id.word);
+
+            cardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final int position = getAdapterPosition();
+                    Log.d(TAG, "position: " + position);
+                    if (position < mBaseLinePosition) {
+                        onItemMove(position, mItems_new.size() - 1);
+                    }
+                    else if (position > mBaseLinePosition) {
+                        onItemMove(position, mBaseLinePosition);
+                    }
+                }
+            });
+
+        }
+    }
+
+    private class Item {
+        public String word;
+        public int width;
+
+        public Item(String word, int width) {
+            this.word = word;
+            this.width = width;
         }
     }
 }

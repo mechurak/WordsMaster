@@ -26,7 +26,6 @@ public class OrderTestActivity extends AppCompatActivity{
     private final static String TAG = "OrderTestActivity";
     private WordBlockAdapter mAdapter = null;
     RecyclerView mMixedRecyclerView;
-    RecyclerView mAnswerRecyclerView;
     MySpanSizeLookUp mySpanSizeLookUp;
     GridLayoutManager layoutManager;
 
@@ -82,11 +81,11 @@ public class OrderTestActivity extends AppCompatActivity{
         mAdapter = new WordBlockAdapter(OrderTestActivity.this, word);
 
         mMixedRecyclerView = (RecyclerView)findViewById(R.id.list_mixed);
-        layoutManager = new GridLayoutManager(this, 30, LinearLayoutManager.VERTICAL, false);
+        layoutManager = new GridLayoutManager(this, 100, LinearLayoutManager.VERTICAL, false);
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int deviceWidth = displayMetrics.widthPixels;
-        mySpanSizeLookUp = new MySpanSizeLookUp(mAdapter, 30, deviceWidth);
+        mySpanSizeLookUp = new MySpanSizeLookUp(mAdapter, 100, deviceWidth);
         layoutManager.setSpanSizeLookup(mySpanSizeLookUp);
         mMixedRecyclerView.setAdapter(mAdapter);
         mMixedRecyclerView.setLayoutManager(layoutManager);
