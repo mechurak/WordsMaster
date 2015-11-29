@@ -25,7 +25,6 @@ import android.widget.Toast;
 import com.shimnssso.wordsmaster.ForegroundService;
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
-import com.shimnssso.wordsmaster.util.TTSHelper;
 import com.shimnssso.wordsmaster.wordTest.OrderTestActivity;
 
 public class WordListActivity extends AppCompatActivity {
@@ -195,15 +194,12 @@ public class WordListActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         Log.i(TAG, "onResume");
-        int currentId = mDbHelper.getCurrentWordId();
-        mAdapter.setCurrentId(currentId);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         Log.i(TAG, "onPause");
-        mDbHelper.setCurrentWordId(mAdapter.getCurrentId());
     }
 
     @Override

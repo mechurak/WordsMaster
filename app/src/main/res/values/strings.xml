@@ -15,6 +15,9 @@
     <string name="action_play">play</string>
     <string name="action_stop">stop</string>
 
+    <string name="action_order_type_spelling">spelling</string>
+    <string name="action_order_type_phonetic">phonetic</string>
+
     <string name="nav_item_attachment">Attachment</string>
     <string name="nav_item_images">Images</string>
     <string name="nav_item_location">My Location</string>

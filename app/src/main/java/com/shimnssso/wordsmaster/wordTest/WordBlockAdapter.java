@@ -32,17 +32,28 @@ public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.View
     private int mBaseLinePosition;
     private Item mBaseLineItem;
 
-    public WordBlockAdapter(Context context, String words) {
+    public WordBlockAdapter(Context context, String words, boolean isChinese) {
         mContext = context;
         mWords = words;
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.word_block, null, false);
 
-        String[] wordArray = mWords.split(" ");
+        String[] wordArray = null;
+        if (isChinese) {
+            wordArray = mWords.split("");
+        }
+        else {
+            wordArray = mWords.split(" ");
+        }
         mItems_new = new ArrayList<>();
         mAnswer = new ArrayList<>();
         for (String s : wordArray) {
+            if (s.equals("")) {
+                Log.d(TAG, "continue. length:" + s.length());
+                continue;
+            }
+
             mAnswer.add(s);
             TextView textView = (TextView)view.findViewById(R.id.word);
             textView.setText(s);
@@ -108,23 +119,21 @@ public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.View
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(mItems_new, i, i + 1);
-                //Collections.swap(mWidths, i, i + 1);
             }
         } else {
             for (int i = fromPosition; i > toPosition; i--) {
                 Collections.swap(mItems_new, i, i - 1);
-                //Collections.swap(mWidths, i, i - 1);
             }
         }
-        //mBaseLinePosition = mItems.indexOf("== answer ==");
         mBaseLinePosition = mItems_new.indexOf(mBaseLineItem);
         notifyItemMoved(fromPosition, toPosition);
         notifyItemChanged(toPosition);
+        Log.d(TAG, "from " + fromPosition + ", to " + toPosition + ", base " + mBaseLinePosition);
         if (toPosition > mBaseLinePosition && fromPosition > mBaseLinePosition) {
             int min = (fromPosition<toPosition) ? fromPosition : toPosition;
             notifyItemRangeChanged(min, mItems_new.size() - min);
         }
-        else if (toPosition < mBaseLinePosition && fromPosition > mBaseLinePosition) {
+        else if (toPosition < mBaseLinePosition && fromPosition >= mBaseLinePosition) {
             notifyItemRangeChanged(fromPosition, mItems_new.size() - fromPosition);
         }
     }

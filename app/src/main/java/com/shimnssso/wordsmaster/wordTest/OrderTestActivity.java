@@ -47,6 +47,8 @@ public class OrderTestActivity extends AppCompatActivity{
     CheckBox chk_phonetic;
     CheckBox chk_meaning;
 
+    private boolean mSpellingMode = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,7 +97,7 @@ public class OrderTestActivity extends AppCompatActivity{
         mMeaning = intent.getStringExtra("meaning");
         Log.i(TAG, "word: " + mSpelling);
 
-        mAdapter = new WordBlockAdapter(OrderTestActivity.this, mPhonetic);
+        mAdapter = new WordBlockAdapter(OrderTestActivity.this, mPhonetic, false);
 
         mMixedRecyclerView = (RecyclerView)findViewById(R.id.list_mixed);
         layoutManager = new GridLayoutManager(this, 100, LinearLayoutManager.VERTICAL, false);
@@ -164,7 +166,7 @@ public class OrderTestActivity extends AppCompatActivity{
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.test_order, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -193,6 +195,36 @@ public class OrderTestActivity extends AppCompatActivity{
         switch (id) {
             case android.R.id.home:
                 mDrawerLayout.openDrawer(GravityCompat.START);
+                return true;
+
+            case R.id.action_order_type:
+                if (mSpellingMode) {
+                    item.setTitle(R.string.action_order_type_phonetic);
+                    mAdapter = new WordBlockAdapter(OrderTestActivity.this, mPhonetic, false);
+                    mSpellingMode = false;
+
+                }
+                else {
+                    item.setTitle(R.string.action_order_type_spelling);
+                    mAdapter = new WordBlockAdapter(OrderTestActivity.this, mSpelling, true);
+                    mSpellingMode = true;
+                }
+
+                layoutManager = new GridLayoutManager(this, 100, LinearLayoutManager.VERTICAL, false);
+                DisplayMetrics displayMetrics = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+                int deviceWidth = displayMetrics.widthPixels;
+                mySpanSizeLookUp = new MySpanSizeLookUp(mAdapter, 100, deviceWidth);
+                layoutManager.setSpanSizeLookup(mySpanSizeLookUp);
+                mMixedRecyclerView.setAdapter(mAdapter);
+                mMixedRecyclerView.setLayoutManager(layoutManager);
+
+                Log.i(TAG, "setAdapter");
+
+                MyItemTouchCallback callback = new MyItemTouchCallback(mAdapter);
+                ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+                touchHelper.attachToRecyclerView(mMixedRecyclerView);
+
                 return true;
         }
 
