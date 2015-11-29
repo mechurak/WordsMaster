@@ -18,6 +18,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.shimnssso.wordsmaster.R;
@@ -32,6 +35,17 @@ public class OrderTestActivity extends AppCompatActivity{
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private String mSpelling;
+    private String mPhonetic;
+    private String mMeaning;
+
+    TextView txt_spelling;
+    TextView txt_phonetic;
+    TextView txt_meaning;
+
+    CheckBox chk_spelling;
+    CheckBox chk_phonetic;
+    CheckBox chk_meaning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +76,7 @@ public class OrderTestActivity extends AppCompatActivity{
             }
         });
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerToggle.setDrawerIndicatorEnabled(false);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -75,10 +90,12 @@ public class OrderTestActivity extends AppCompatActivity{
         });
 
         Intent intent = getIntent();
-        String word = intent.getStringExtra("word");
-        Log.i(TAG, "word: " + word);
+        mSpelling = intent.getStringExtra("spelling");
+        mPhonetic = intent.getStringExtra("phonetic");
+        mMeaning = intent.getStringExtra("meaning");
+        Log.i(TAG, "word: " + mSpelling);
 
-        mAdapter = new WordBlockAdapter(OrderTestActivity.this, word);
+        mAdapter = new WordBlockAdapter(OrderTestActivity.this, mPhonetic);
 
         mMixedRecyclerView = (RecyclerView)findViewById(R.id.list_mixed);
         layoutManager = new GridLayoutManager(this, 100, LinearLayoutManager.VERTICAL, false);
@@ -95,6 +112,48 @@ public class OrderTestActivity extends AppCompatActivity{
         MyItemTouchCallback callback = new MyItemTouchCallback(mAdapter);
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
         touchHelper.attachToRecyclerView(mMixedRecyclerView);
+
+
+        txt_spelling = (TextView)findViewById(R.id.txt_spelling);
+        txt_spelling.setText(mSpelling);
+        txt_phonetic = (TextView)findViewById(R.id.txt_phonetic);
+        txt_phonetic.setText(mPhonetic);
+        txt_meaning = (TextView)findViewById(R.id.txt_meaning);
+        txt_meaning.setText(mMeaning);
+
+        chk_spelling = (CheckBox) findViewById(R.id.chk_word_spelling);
+        chk_spelling.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    txt_spelling.setVisibility(View.VISIBLE);
+                else
+                    txt_spelling.setVisibility(View.GONE);
+            }
+        });
+        chk_phonetic = (CheckBox) findViewById(R.id.chk_word_phonetic);
+        chk_phonetic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    txt_phonetic.setVisibility(View.VISIBLE);
+                else
+                    txt_phonetic.setVisibility(View.GONE);
+            }
+        });
+        chk_meaning = (CheckBox)findViewById(R.id.chk_word_meaning);
+        chk_meaning.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked)
+                    txt_meaning.setVisibility(View.VISIBLE);
+                else
+                    txt_meaning.setVisibility(View.GONE);
+            }
+        });
+
+        chk_spelling.setChecked(false);
+        chk_phonetic.setChecked(false);
     }
 
     @Override

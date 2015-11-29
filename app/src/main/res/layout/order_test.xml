@@ -19,13 +19,48 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="New Text"
-            android:id="@+id/textView"
+            android:gravity="center_vertical"
+            android:layout_weight="8"
+            android:id="@+id/linearLayout2"
             android:layout_below="@+id/toolbar"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true">
+
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Large Text"
+                android:id="@+id/txt_spelling"
+                android:layout_margin="2dp"
+                android:gravity="center_horizontal" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Small Text"
+                android:id="@+id/txt_phonetic"
+                android:layout_gravity="center_horizontal"
+                android:layout_margin="2dp"
+                android:gravity="center_horizontal" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Medium Text"
+                android:id="@+id/txt_meaning"
+                android:layout_margin="2dp"
+                android:gravity="center_horizontal" />
+        </LinearLayout>
+
+
+
 
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
@@ -34,10 +69,44 @@
             android:scrollbars="vertical"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_alignParentBottom="true"
-            android:layout_below="@+id/textView" />
+            android:layout_below="@+id/linearLayout2"
+            android:layout_above="@+id/linearLayout" />
 
-        -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/linearLayout">
+
+            <CheckBox
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="spelling"
+                android:id="@+id/chk_word_spelling"
+                android:layout_weight="1"
+                android:checked="true" />
+
+            <CheckBox
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="phonetic"
+                android:id="@+id/chk_word_phonetic"
+                android:layout_weight="1"
+                android:checked="true" />
+
+            <CheckBox
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="meaning"
+                android:id="@+id/chk_word_meaning"
+                android:layout_weight="1"
+                android:checked="true" />
+        </LinearLayout>
+
     </RelativeLayout>
 
     <android.support.design.widget.NavigationView

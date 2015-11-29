@@ -348,7 +348,9 @@ public class WordListActivity extends AppCompatActivity {
             case R.id.action_order_test:
                 Intent intent = new Intent(getApplicationContext(), OrderTestActivity.class);
                 Cursor c = (Cursor)mAdapter.getItem();
-                intent.putExtra("word", c.getString(2));
+                intent.putExtra("spelling", c.getString(1));
+                intent.putExtra("phonetic", c.getString(2));
+                intent.putExtra("meaning", c.getString(3));
                 startActivity(intent);
                 return true;
 
