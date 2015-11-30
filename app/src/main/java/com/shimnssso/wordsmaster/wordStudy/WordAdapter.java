@@ -57,6 +57,14 @@ public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
         }
     }
 
+    public void setStarred(boolean starred) {
+        isStarred[mCurPosition] = starred;
+    }
+
+    public boolean getStarred() {
+        return isStarred[mCurPosition];
+    }
+
 
     @Override
     public ViewHolder onCreateViewHolder(final ViewGroup parent, int viewType) {
