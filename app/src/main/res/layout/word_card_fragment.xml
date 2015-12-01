@@ -68,6 +68,11 @@
             android:layout_height="wrap_content"
             android:text="Del"
             android:id="@+id/btn_word_del"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Test"
+            android:id="@+id/btn_word_test"/>
     </LinearLayout>
 
     <Button

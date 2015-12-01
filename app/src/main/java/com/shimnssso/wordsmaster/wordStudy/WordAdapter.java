@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -98,9 +99,13 @@ public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
 
         if (position == mCurPosition) {
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(mContext, R.color.theme2_primary));
+            holder.btn_card.setVisibility(View.VISIBLE);
+            holder.btn_test.setVisibility(View.VISIBLE);
         }
         else {
             holder.cardView.setCardBackgroundColor(ContextCompat.getColor(mContext, R.color.background_floating_material_light));
+            holder.btn_card.setVisibility(View.GONE);
+            holder.btn_test.setVisibility(View.GONE);
         }
     }
 
@@ -117,6 +122,9 @@ public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
         TextView meaning;
         CheckBox starred;
 
+        Button btn_card;
+        Button btn_test;
+
         public ViewHolder(final View itemView) {
             super(itemView);
 
@@ -125,6 +133,9 @@ public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
             phonetic = (TextView)itemView.findViewById(R.id.phonetic);
             meaning = (TextView)itemView.findViewById(R.id.meaning);
             starred = (CheckBox)itemView.findViewById(R.id.starred);
+
+            btn_card = (Button)itemView.findViewById(R.id.btn_card);
+            btn_test = (Button)itemView.findViewById(R.id.btn_test);
 
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -173,6 +184,20 @@ public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
                     DbHelper dbHelper = DbHelper.getInstance();
                     dbHelper.updateWord(value, id);
                     Log.d(TAG, "onCheckedChanged. newFlag: " + newFlag + ", id:" + id);
+                }
+            });
+
+            btn_card.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    WordListActivity.mHandler.sendEmptyMessage(WordListActivity.MSG_CARD_MODE);
+                }
+            });
+
+            btn_test.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    WordListActivity.mHandler.sendEmptyMessage(WordListActivity.MSG_TEST_MODE);
                 }
             });
         }

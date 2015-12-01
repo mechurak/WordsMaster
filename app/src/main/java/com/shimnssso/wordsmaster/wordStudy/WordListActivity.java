@@ -38,6 +38,8 @@ public class WordListActivity extends AppCompatActivity {
 
     public final static int MSG_PLAY_DONE = 1000;
     public final static int MSG_PLAY_READY = 1001;
+    public final static int MSG_CARD_MODE = 1010;
+    public final static int MSG_TEST_MODE = 1011;
 
     public static Handler mHandler = null;
     private DbHelper mDbHelper = null;
@@ -113,19 +115,7 @@ public class WordListActivity extends AppCompatActivity {
 
         mDbHelper = DbHelper.getInstance();
         cursor = mDbHelper.getWordList(mBookTitle);
-        //cursor = mDbHelper.getStarredWordList(bookTitle);
         mAdapter = new WordAdapter(this, cursor);
-
-        /*
-        chk_all = (CheckBox)findViewById(R.id.chk_all);
-        chk_all.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                mAdapter.checkAll(b);
-                mAdapter.notifyDataSetInvalidated();
-            }
-        });
-        */
 
         chk_word_spelling = (CheckBox) findViewById(R.id.chk_word_spelling);
         chk_word_spelling.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -177,6 +167,23 @@ public class WordListActivity extends AppCompatActivity {
                         if (!mPlayMode) break;
 
                         temp.play(msg.arg1);
+                        break;
+
+                    case MSG_CARD_MODE:
+                        mDrawerToggle.setDrawerIndicatorEnabled(false);
+                        getSupportActionBar().setTitle(R.string.title_word_card);
+                        invalidateOptionsMenu();
+
+                        replaceFragment(WORD_CARD_FRAGMENT);
+                        break;
+
+                    case MSG_TEST_MODE:
+                        Intent intent = new Intent(getApplicationContext(), OrderTestActivity.class);
+                        Cursor c = (Cursor)mAdapter.getItem();
+                        intent.putExtra("spelling", c.getString(1));
+                        intent.putExtra("phonetic", c.getString(2));
+                        intent.putExtra("meaning", c.getString(3));
+                        startActivity(intent);
                         break;
 
                     default:
@@ -251,8 +258,6 @@ public class WordListActivity extends AppCompatActivity {
         if (mCurrentFragmentIndex == WORD_CARD_FRAGMENT) {
             mDrawerToggle.setDrawerIndicatorEnabled(true);
             getSupportActionBar().setTitle(R.string.title_word_list);
-            invalidateOptionsMenu();
-
             replaceFragment(WORD_LIST_FRAGMENT);
             return;
         }
@@ -262,12 +267,19 @@ public class WordListActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.word_list, menu);
-        if (mCurrentFragmentIndex==WORD_LIST_FRAGMENT) {
 
+        MenuItem play = menu.findItem(R.id.action_play);
+        if (mPlayMode) {
+            play.setTitle(R.string.action_stop);
+        } else {
+            play.setTitle(R.string.action_play);
         }
-        else {
-            menu.removeItem(R.id.action_starred);
-            menu.removeItem(R.id.action_card);
+
+        MenuItem starred = menu.findItem(R.id.action_starred);
+        if (mStarredMode) {
+            starred.setTitle(R.string.action_starred_all);
+        } else {
+            starred.setTitle(R.string.action_starred_only);
         }
 
         return super.onCreateOptionsMenu(menu);
@@ -299,61 +311,38 @@ public class WordListActivity extends AppCompatActivity {
                 mDrawerLayout.openDrawer(GravityCompat.START);
                 return true;
 
-            case R.id.action_card:
-                mDrawerToggle.setDrawerIndicatorEnabled(false);
-                getSupportActionBar().setTitle(R.string.title_word_card);
-                invalidateOptionsMenu();
-
-                replaceFragment(WORD_CARD_FRAGMENT);
-
-                return true;
-
             case R.id.action_play:
                 if (mPlayMode) {
-                    item.setTitle(R.string.action_play);
+                    //item.setTitle(R.string.action_play);
                     mPlayMode = false;
 
                 }
                 else {
-                    item.setTitle(R.string.action_stop);
+                    //item.setTitle(R.string.action_stop);
                     mPlayMode = true;
 
                     WordInterface temp = (WordInterface)mCurrentFragment;
                     temp.play(mAdapter.getCurrentId());
                 }
+                invalidateOptionsMenu();
                 return true;
 
             case R.id.action_starred:
                 if (mStarredMode) {
-                    item.setTitle(R.string.action_starred_only);
                     cursor.close();
                     cursor = mDbHelper.getWordList(mBookTitle);
                     mAdapter = new WordAdapter(this, cursor);
                     mStarredMode = false;
                 }
                 else {
-                    item.setTitle(R.string.action_starred_all);
                     cursor.close();
                     cursor = mDbHelper.getStarredWordList(mBookTitle);
                     mAdapter = new WordAdapter(this, cursor);
                     mStarredMode = true;
                 }
+                invalidateOptionsMenu();
                 replaceFragment(mCurrentFragmentIndex);
                 return true;
-
-            case R.id.action_order_test:
-                Intent intent = new Intent(getApplicationContext(), OrderTestActivity.class);
-                Cursor c = (Cursor)mAdapter.getItem();
-                intent.putExtra("spelling", c.getString(1));
-                intent.putExtra("phonetic", c.getString(2));
-                intent.putExtra("meaning", c.getString(3));
-                startActivity(intent);
-                return true;
-
-            /*
-            case R.id.action_settings:
-                return true;
-                */
         }
 
         if (mDrawerToggle.onOptionsItemSelected(item)) {
@@ -361,7 +350,6 @@ public class WordListActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     public interface WordInterface {
         void setVisible(int type, boolean visible);

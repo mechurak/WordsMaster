@@ -1,5 +1,6 @@
 package com.shimnssso.wordsmaster.wordTest;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.shimnssso.wordsmaster.R;
 
@@ -144,6 +146,20 @@ public class WordBlockAdapter extends RecyclerView.Adapter<WordBlockAdapter.View
         }
         else if (toPosition < mBaseLinePosition && fromPosition >= mBaseLinePosition) {
             notifyItemRangeChanged(fromPosition, mItems_new.size() - fromPosition);
+        }
+
+        int rightNum = 0;
+        int index = 0;
+        for (int i = mBaseLinePosition + 1 ; i < mItems_new.size() ; i++) {
+            if (!mItems_new.get(i).word.equals(mAnswer.get(index))) {
+                break;
+            }
+            rightNum++;
+            index++;
+        }
+        if (rightNum == mAnswer.size()) {
+            Toast.makeText(mContext, "Correct!!!", Toast.LENGTH_SHORT).show();
+            //((Activity)mContext).finish();
         }
     }
 

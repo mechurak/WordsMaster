@@ -1,14 +1,13 @@
 package com.shimnssso.wordsmaster;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -31,11 +30,10 @@ public class BookListActivity extends AppCompatActivity implements BookAdapter.B
     private DbHelper mDbHelper = null;
     private BookAdapter mAdapter = null;
     RecyclerView mListView;
-    private boolean mIsSelectMode = false;
+    private int mSelectedNum = 0;
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-    private FloatingActionButton mFab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,16 +76,6 @@ public class BookListActivity extends AppCompatActivity implements BookAdapter.B
             }
         });
 
-        mFab = (FloatingActionButton)findViewById(R.id.actionButton);
-        mFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Snackbar.make(mListView, "import from google", Snackbar.LENGTH_SHORT).show();
-                Intent intent = new Intent(BookListActivity.this, SheetClientActivity.class);
-                startActivity(intent);
-            }
-        });
-
         mDbHelper = DbHelper.getInstance(this);
         ArrayList<BookAdapter.Book> mBookList = mDbHelper.getBookList();
         mAdapter = new BookAdapter(BookListActivity.this, R.layout.book_list, mBookList);
@@ -110,11 +98,18 @@ public class BookListActivity extends AppCompatActivity implements BookAdapter.B
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (mIsSelectMode) {
-            getMenuInflater().inflate(R.menu.menu_main_select, menu);
+        getMenuInflater().inflate(R.menu.book_list, menu);
+        if (mSelectedNum > 0) {
+            menu.removeItem(R.id.action_import);
+            menu.removeItem(R.id.action_import_other);
+            if (mSelectedNum == mAdapter.getItemCount()) {
+                menu.removeItem(R.id.action_all);
+            }
         }
         else {
-            getMenuInflater().inflate(R.menu.menu_main, menu);
+            menu.removeItem(R.id.action_all);
+            menu.removeItem(R.id.action_study);
+            menu.removeItem(R.id.action_delete);
         }
         return super.onCreateOptionsMenu(menu);
     }
@@ -142,15 +137,13 @@ public class BookListActivity extends AppCompatActivity implements BookAdapter.B
         Log.d(TAG, "onOptionsItemSelected. id " + id);
 
         switch (id) {
-            case android.R.id.home:
-                if (mIsSelectMode) {
-                    Log.e(TAG, "onOptionsItemSelected. home in non select mode");
-                    mAdapter.checkAll(false);
-                }
-                else {
-                    Log.e(TAG, "onOptionsItemSelected. home in non select mode");
-                    mDrawerLayout.openDrawer(GravityCompat.START);
-                }
+            case R.id.action_import:
+                Intent intent = new Intent(BookListActivity.this, SheetClientActivity.class);
+                startActivity(intent);
+                return true;
+
+            case R.id.action_import_other:
+
                 return true;
 
             case R.id.action_all:
@@ -158,12 +151,25 @@ public class BookListActivity extends AppCompatActivity implements BookAdapter.B
                 return true;
 
             case R.id.action_delete:
-                ArrayList<String> checkedBooks = mAdapter.getCheckedBook();
-                if (checkedBooks.size() > 0) {
-                    mDbHelper.deleteWords(checkedBooks);
-                    mAdapter.removeCheckedItem();
-                    mAdapter.notifyDataSetChanged();
-                }
+                new AlertDialog.Builder(this).setTitle("Delete").setMessage("Are you sure?").
+                        setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ArrayList<String> checkedBooks = mAdapter.getCheckedBook();
+                                if (checkedBooks.size() > 0) {
+                                    mDbHelper.deleteWords(checkedBooks);
+                                    mAdapter.removeCheckedItem();
+                                    mAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        }).
+                        setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.cancel();
+                            }
+                        }).
+                        show();
                 return true;
         }
 
@@ -176,25 +182,28 @@ public class BookListActivity extends AppCompatActivity implements BookAdapter.B
 
     @Override
     public void onSelectedNumChanged(int selectItemNum) {
-        if (selectItemNum > 0) {
-            if (!mIsSelectMode) {
-                mIsSelectMode = true;
+        int prev = mSelectedNum;
+        mSelectedNum = selectItemNum;
+
+        if (mSelectedNum > 0) {
+            if (prev == 0 ) {
                 mDrawerToggle.setDrawerIndicatorEnabled(false);
                 //setTheme(R.style.SelectTheme);
                 getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(getApplicationContext(), R.color.theme2_primary)));
                 invalidateOptionsMenu();
             }
             getSupportActionBar().setTitle(String.valueOf(selectItemNum));
-        }
-        else {
-            if (mIsSelectMode) {
-                mIsSelectMode = false;
-                mDrawerToggle.setDrawerIndicatorEnabled(true);
-                //setTheme(R.style.AppTheme);
-                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(getApplicationContext(), R.color.primary)));
-                getSupportActionBar().setTitle(R.string.title_book_list);
+            if (mSelectedNum == mAdapter.getItemCount()) {
                 invalidateOptionsMenu();
             }
+        }
+
+        else {
+            mDrawerToggle.setDrawerIndicatorEnabled(true);
+            //setTheme(R.style.AppTheme);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(getApplicationContext(), R.color.primary)));
+            getSupportActionBar().setTitle(R.string.title_book_list);
+            invalidateOptionsMenu();
         }
     }
 }

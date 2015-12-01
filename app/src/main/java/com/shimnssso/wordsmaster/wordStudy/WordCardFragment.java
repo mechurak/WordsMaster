@@ -5,10 +5,10 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +24,7 @@ import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.data.DbMeta;
 import com.shimnssso.wordsmaster.util.AudioHelper;
-import com.shimnssso.wordsmaster.util.TTSHelper;
+import com.shimnssso.wordsmaster.wordTest.OrderTestActivity;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,6 +41,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
     Button btn_word_prev;
     Button btn_word_record;
     Button btn_word_del;
+    Button btn_word_test;
 
     CheckBox chk_starred;
 
@@ -50,8 +51,6 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
     TextView txt_word_progress;
 
     LinearLayout txt_box;
-
-    boolean mIsRecording = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -119,7 +118,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
                 AudioHelper.startRecord(getActivity().getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3");
                 Log.d(TAG, "startRecord");
 
-                new AlertDialog.Builder(mActivity).setTitle("Record").setMessage("Speak loudly").
+                AlertDialog dialog = new AlertDialog.Builder(mActivity).setTitle("Record").setMessage("Speak loudly").
                         setPositiveButton("done", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -128,6 +127,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
                                 refreshCurrentCard();
                             }
                         }).show();
+                dialog.getWindow().setGravity(Gravity.BOTTOM);
             }
         });
 
@@ -139,6 +139,19 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
                 File file = new File(getActivity().getFilesDir().getAbsolutePath() + File.separator + c.getString(1) + ".mp3");
                 file.delete();
                 refreshCurrentCard();
+            }
+        });
+
+        btn_word_test = (Button)v.findViewById(R.id.btn_word_test);
+        btn_word_test.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mActivity.getApplicationContext(), OrderTestActivity.class);
+                Cursor c = (Cursor) mAdapter.getItem();
+                intent.putExtra("spelling", c.getString(1));
+                intent.putExtra("phonetic", c.getString(2));
+                intent.putExtra("meaning", c.getString(3));
+                startActivity(intent);
             }
         });
 
