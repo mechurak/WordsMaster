@@ -32,7 +32,8 @@
                 android:focusable="false"
                 android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true" />
+                android:layout_alignParentStart="true"
+                style="?android:attr/starStyle" />
 
             <LinearLayout
                 android:layout_width="wrap_content"

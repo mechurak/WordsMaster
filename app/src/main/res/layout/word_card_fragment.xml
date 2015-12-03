@@ -9,7 +9,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/chk_starred"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        style="?android:attr/starStyle" />
 
     <LinearLayout
         android:orientation="vertical"
