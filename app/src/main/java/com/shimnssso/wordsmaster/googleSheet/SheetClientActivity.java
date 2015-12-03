@@ -368,13 +368,13 @@ public class SheetClientActivity extends AppCompatActivity implements BookAdapte
                     int size = 0;
                     for (CellEntry cell : cellFeed.getEntries()) {
                         // Print the first column's cell value
-                        Log.d(TAG, "cur : " + cell.getCell().getInputValue());
+                        Log.d(TAG, "cur : " + cell.getCell().getInputValue() + ", size:" + size);
                         curStr = cell.getCell().getInputValue();
                         if (!curStr.equals(prevStr) && !prevStr.equals("(prev)")){
-                            BookAdapter.Book book = new BookAdapter.Book(prevStr, ++size);
+                            BookAdapter.Book book = new BookAdapter.Book(prevStr, size);
                             mBookList.add(book);
                             Log.d(TAG, "added " + book.getTitle() + " " + book.getSize());
-                            size = 0;
+                            size = 1;
                         }
                         else {
                             size++;
@@ -382,7 +382,7 @@ public class SheetClientActivity extends AppCompatActivity implements BookAdapte
                         prevStr = curStr;
                     }
                     // add last book
-                    BookAdapter.Book book = new BookAdapter.Book(prevStr, ++size);
+                    BookAdapter.Book book = new BookAdapter.Book(prevStr, size);
                     mBookList.add(book);
                     Log.d(TAG, "added " + book.getTitle() + " " + book.getSize());
 
@@ -491,6 +491,9 @@ public class SheetClientActivity extends AppCompatActivity implements BookAdapte
                         String phonetic = row.getCustomElements().getValue(TAG_PHONETIC);
                         String spelling = row.getCustomElements().getValue(TAG_SPELLING);
                         String meaning = row.getCustomElements().getValue(TAG_MEANING);
+                        if (phonetic == null) phonetic = "";
+                        if (spelling == null) spelling = "";
+                        if (meaning == null) meaning = "";
 
                         stmt.clearBindings();
                         stmt.bindString(1, spelling);

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="fill_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:minHeight="70dp">
 
     <TextView
         android:layout_width="0dp"
@@ -9,13 +10,16 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="tempSheetName"
         android:id="@+id/txt_sheet_title"
-        android:layout_weight="5"/>
+        android:layout_gravity="center_vertical"
+        android:layout_weight="8" />
 
     <TextView
         android:layout_width="0dp"
         android:id="@+id/txt_sheet_size"
         android:layout_height="wrap_content"
         android:text="num"
-        android:layout_weight="5"/>
+        android:layout_gravity="center_vertical|right"
+        android:gravity="center_vertical|right"
+        android:layout_weight="2" />
 
 </LinearLayout>
