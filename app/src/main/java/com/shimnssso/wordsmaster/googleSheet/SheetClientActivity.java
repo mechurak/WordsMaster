@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -370,7 +371,7 @@ public class SheetClientActivity extends AppCompatActivity implements BookAdapte
                         Log.d(TAG, "cur : " + cell.getCell().getInputValue());
                         curStr = cell.getCell().getInputValue();
                         if (!curStr.equals(prevStr) && !prevStr.equals("(prev)")){
-                            BookAdapter.Book book = new BookAdapter.Book(prevStr, size);
+                            BookAdapter.Book book = new BookAdapter.Book(prevStr, ++size);
                             mBookList.add(book);
                             Log.d(TAG, "added " + book.getTitle() + " " + book.getSize());
                             size = 0;
@@ -381,7 +382,7 @@ public class SheetClientActivity extends AppCompatActivity implements BookAdapte
                         prevStr = curStr;
                     }
                     // add last book
-                    BookAdapter.Book book = new BookAdapter.Book(prevStr, size);
+                    BookAdapter.Book book = new BookAdapter.Book(prevStr, ++size);
                     mBookList.add(book);
                     Log.d(TAG, "added " + book.getTitle() + " " + book.getSize());
 
@@ -456,24 +457,27 @@ public class SheetClientActivity extends AppCompatActivity implements BookAdapte
                     Log.i(TAG, "token: " + token);
                     mService.setHeader("Authorization", "Bearer " + token);
 
-                    // delete books from book table
-                    DbHelper dbHelper = DbHelper.getInstance();
-                    String sheetTitle = mCurrentSheet.getTitle().getPlainText();
-                    dbHelper.deleteWords(sheetTitle, mBooks);
-
-
                     WorksheetFeed worksheetFeed = mService.getFeed(mCurrentSheet.getWorksheetFeedUrl(), WorksheetFeed.class);
                     List<WorksheetEntry> worksheets = worksheetFeed.getEntries();
                     Log.d(TAG, "worksheets size: " + worksheets.size());
                     WorksheetEntry worksheet = worksheets.get(0);
 
-
                     // Fetch the list feed of the worksheet.
                     URL listFeedUrl = worksheet.getListFeedUrl();
                     ListFeed listFeed = mService.getFeed(listFeedUrl, ListFeed.class);
 
-
+                    String sheetTitle = mCurrentSheet.getTitle().getPlainText();
+                    DbHelper dbHelper = DbHelper.getInstance();
                     SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+                    SQLiteStatement stmt = db.compileStatement(
+                            "INSERT OR REPLACE INTO " + DbMeta.WordTableMeta.TABLE_NAME
+                                    + " VALUES (null,?,?,?,?,"
+                                    + "(SELECT " + DbMeta.WordTableMeta.FLAG + " FROM " + DbMeta.WordTableMeta.TABLE_NAME
+                                    + " WHERE (" + DbMeta.WordTableMeta.SPELLING + "=?) AND (" + DbMeta.WordTableMeta.CATEGORY + "=?) )"
+                                    + ",?)"
+                    );
+                    long updateTime = System.currentTimeMillis();
 
                     // Iterate through each row, printing its cell values.
                     for (ListEntry row : listFeed.getEntries()) {
@@ -488,11 +492,21 @@ public class SheetClientActivity extends AppCompatActivity implements BookAdapte
                         String spelling = row.getCustomElements().getValue(TAG_SPELLING);
                         String meaning = row.getCustomElements().getValue(TAG_MEANING);
 
-                        String[] word = {spelling, phonetic, meaning, null, sheetTitle + " - "+ title, "0"};
+                        stmt.clearBindings();
+                        stmt.bindString(1, spelling);
+                        stmt.bindString(2, phonetic);
+                        stmt.bindString(3, meaning);
+                        stmt.bindString(4, sheetTitle + " - "+ title);
+                        stmt.bindString(5, spelling);
+                        stmt.bindString(6, sheetTitle + " - " + title);
+                        stmt.bindLong(7, updateTime);
+                        stmt.execute();
 
-                        db.execSQL( "INSERT INTO " + DbMeta.WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?,?)", word);
                         publishProgress(++mPosDialog);
                     }
+                    stmt.close();
+
+                    dbHelper.deleteWords(sheetTitle, updateTime, mBooks);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

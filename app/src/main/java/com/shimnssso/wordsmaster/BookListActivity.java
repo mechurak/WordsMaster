@@ -123,6 +123,19 @@ public class BookListActivity extends AppCompatActivity implements BookAdapter.B
     }
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult. requestCode: " + requestCode + ", resultCode: " + resultCode);
+
+        // update adapter
+        ArrayList<BookAdapter.Book> mBookList = mDbHelper.getBookList();
+        mAdapter = new BookAdapter(BookListActivity.this, R.layout.book_list, mBookList);
+        mAdapter.setListener(this);
+        mListView.setAdapter(mAdapter);
+        Log.i(TAG, "setAdapter");
+    }
+
+    @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
@@ -139,7 +152,7 @@ public class BookListActivity extends AppCompatActivity implements BookAdapter.B
         switch (id) {
             case R.id.action_import:
                 Intent intent = new Intent(BookListActivity.this, SheetClientActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, 0);
                 return true;
 
             case R.id.action_import_other:

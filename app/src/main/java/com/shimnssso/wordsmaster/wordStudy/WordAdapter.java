@@ -52,7 +52,7 @@ public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
         if (mCursor.moveToFirst()) {
             do {
                 final int position = mCursor.getPosition();
-                final int wordFlag = mCursor.getInt(6);
+                final int wordFlag = mCursor.getInt(5);
                 isStarred[position] = (wordFlag & DbMeta.WordFlag.STARRED) == DbMeta.WordFlag.STARRED;
             } while(mCursor.moveToNext());
         }
@@ -174,7 +174,7 @@ public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
 
                     isStarred[position] = isChecked;
                     final int id = mCursor.getInt(0);
-                    final int wordFlag = mCursor.getInt(6);
+                    final int wordFlag = mCursor.getInt(5);
 
                     int newFlag = wordFlag;
                     if (isChecked) newFlag |= DbMeta.WordFlag.STARRED;

@@ -54,13 +54,14 @@ public class DbHelper extends SQLiteOpenHelper {
                         + WordTableMeta.SPELLING + " TEXT, "
                         + WordTableMeta.PHONETIC + " TEXT, "
                         + WordTableMeta.MEANING + " TEXT, "
-                        + WordTableMeta.AUDIO_PATH + " TEXT, "
                         + WordTableMeta.CATEGORY + " TEXT, "
-                        + WordTableMeta.FLAG + " INTEGER"
+                        + WordTableMeta.FLAG + " INTEGER, "
+                        + WordTableMeta.UPDATE_TIME + " INTEGER, "
+                        + "UNIQUE(" + WordTableMeta.SPELLING + ", " + WordTableMeta.CATEGORY + ")"
                         + " )"
         );
         for(String[] word : DbMeta.tempBook) {
-            db.execSQL( "INSERT INTO " + WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?,?)", word);
+            db.execSQL( "INSERT INTO " + WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?,null)", word);
         }
     }
 
@@ -100,18 +101,21 @@ public class DbHelper extends SQLiteOpenHelper {
                 + WordTableMeta.FLAG+" & "+ DbMeta.WordFlag.STARRED+" = " + DbMeta.WordFlag.STARRED, null, null, null, null);
     }
 
-    public void deleteWords(String sheetTitle, ArrayList<String> titleList) {
+    public void deleteWords(String sheetTitle, long updateTime, ArrayList<String> titleList) {
         SQLiteDatabase db = this.getWritableDatabase();
         StringBuilder sb = new StringBuilder();
         sb.append("DELETE FROM ");
         sb.append(WordTableMeta.TABLE_NAME);
         sb.append(" WHERE ");
+        sb.append(WordTableMeta.UPDATE_TIME + "!=" + updateTime + " and ");
+        sb.append("(");
         for (int i=0; i<titleList.size()-1; i++) {
             sb.append(WordTableMeta.CATEGORY);
             sb.append("='" + sheetTitle + " - " + titleList.get(i) + "' or ");
         }
         sb.append(WordTableMeta.CATEGORY);
         sb.append("='" + sheetTitle + " - " + titleList.get(titleList.size()-1) + "'");
+        sb.append(")");
         db.execSQL(sb.toString());
     }
 

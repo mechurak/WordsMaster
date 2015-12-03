@@ -163,7 +163,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
 
                 Cursor c = (Cursor) mAdapter.getItem();
                 final int id =c.getInt(0);
-                final int wordFlag = c.getInt(6);
+                final int wordFlag = c.getInt(5);
 
                 int newFlag = wordFlag;
                 if (isChecked) newFlag |= DbMeta.WordFlag.STARRED;
