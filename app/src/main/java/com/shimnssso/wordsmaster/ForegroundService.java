@@ -2,16 +2,44 @@ package com.shimnssso.wordsmaster;
 
 import android.app.Service;
 import android.content.Intent;
+import android.database.Cursor;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Message;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.shimnssso.wordsmaster.util.AudioHelper;
-import com.shimnssso.wordsmaster.util.TTSHelper;
+import com.shimnssso.wordsmaster.data.DbHelper;
+import com.shimnssso.wordsmaster.wordStudy.WordListActivity;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Locale;
 
-public class ForegroundService extends Service {
+public class ForegroundService extends Service implements MediaPlayer.OnCompletionListener, TextToSpeech.OnInitListener {
     private static final String TAG = "ForegroundService";
+
+    private static final int STATE_IDLE = 0;
+    private static final int STATE_PLAY = 1;
+    private static final int STATE_TTS = 2;
+    private static final int STATE_PLAY_ALL = 3;
+
+
+    private int mCurState = STATE_IDLE;
+    private MediaPlayer mPlayer = null;
+    private TextToSpeech mTts = null;
+    private HashMap<String, String> mParams = null;
+
+    Cursor mCursor = null;
+
+    Handler mHandler = new Handler();
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -21,23 +49,45 @@ public class ForegroundService extends Service {
         }
         switch (action) {
             case Constants.Action.TTS: {
+                if (mCurState != STATE_IDLE) stopPlay();
                 String spelling = intent.getStringExtra("spelling");
                 Log.d(TAG, "action: " + action + ", spelling: " + spelling);
 
-                TTSHelper ttsHelper = TTSHelper.getInstance(getApplicationContext());
-                if (ttsHelper != null) {
-                    ttsHelper.speak(spelling);
-                }
+                mTts.speak(spelling, TextToSpeech.QUEUE_FLUSH, mParams);
                 break;
             }
             case Constants.Action.PLAY: {
+                if (mCurState != STATE_IDLE) stopPlay();
                 String spelling = intent.getStringExtra("spelling");
                 Log.d(TAG, "action: " + action + ", spelling: " + spelling);
 
-                AudioHelper.play(getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3");
+                play(getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3");
                 break;
             }
+            case Constants.Action.PLAY_ALL: {
+                if (mCurState != STATE_IDLE) stopPlay();
+                String book = intent.getStringExtra("book");
+                boolean starred = intent.getBooleanExtra("starred", false);
+                int id = intent.getIntExtra("id", 0);
+
+                if (starred)
+                    mCursor = DbHelper.getInstance(this).getStarredWordList(book);
+                else
+                    mCursor = DbHelper.getInstance(this).getWordList(book);
+
+                mCurState = STATE_PLAY_ALL;
+
+                mCursor.moveToPosition(id);
+                String spelling = mCursor.getString(1);
+                playOrTts(spelling);
+            }
+
             case Constants.Action.STOP: {
+                mCurState = STATE_IDLE;
+                if (mCursor != null) {
+                    mCursor.close();
+                    mCursor = null;
+                }
                 break;
             }
             default:
@@ -102,10 +152,29 @@ public class ForegroundService extends Service {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate");
+
+        mPlayer = new MediaPlayer();
+        mPlayer.setOnCompletionListener(this);
+
+        mTts = new TextToSpeech(getApplicationContext(), this);
+        mParams = new HashMap<>();
+        mParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "test");
     }
 
     @Override
     public void onDestroy() {
+        if (mTts != null) {
+            mTts.stop();
+            mTts.shutdown();
+            mTts = null;
+        }
+
+        if (mPlayer != null) {
+            mPlayer.stop();
+            mPlayer.release();
+            mPlayer = null;
+        }
+
         super.onDestroy();
         Log.d(TAG, "onDestroy");
     }
@@ -113,5 +182,137 @@ public class ForegroundService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        Log.d(TAG, "onCompletion. " + mp);
+        mPlayer.release();
+
+        if (mCurState == STATE_PLAY_ALL) {
+            if (mCursor.moveToNext()) {
+
+                Message m = mHandler.obtainMessage(WordListActivity.MSG_PLAY_DONE, mCursor.getPosition(), 0);
+                WordListActivity.mHandler.sendMessage(m);
+
+                final String spelling = mCursor.getString(1);
+                mHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        playOrTts(spelling);
+                    }
+                }, 1000);
+            }
+            else {
+                mCursor.close();
+                mCursor = null;
+                mCurState = STATE_IDLE;
+            }
+        }
+        else {
+            mCurState = STATE_IDLE;
+        }
+    }
+
+    @Override
+    public void onInit(int status) {
+        Log.d(TAG, "onInit");
+
+        if (status == TextToSpeech.SUCCESS)
+        {
+            int result = mTts.setLanguage(Locale.CHINESE);
+
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED)
+            {
+                Toast.makeText(getApplicationContext(), "This Language is not supported", Toast.LENGTH_LONG).show();
+            }
+            else
+            {
+                Toast.makeText(getApplicationContext(), "Ready to Speak", Toast.LENGTH_LONG).show();
+                mTts.setOnUtteranceProgressListener(mListener);
+            }
+        }
+        else
+        {
+            Toast.makeText(getApplicationContext(), "TTS is not available", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private UtteranceProgressListener mListener = new UtteranceProgressListener() {
+        @Override
+        public void onStart(String utteranceId) {
+
+        }
+
+        @Override
+        public void onDone(String utteranceId) {
+            Log.d(TAG, "TTS onDone. " + utteranceId);
+            if (mCurState == STATE_PLAY_ALL) {
+                if (mCursor.moveToNext()) {
+
+                    Message m = mHandler.obtainMessage(WordListActivity.MSG_PLAY_DONE, mCursor.getPosition(), 0);
+                    WordListActivity.mHandler.sendMessage(m);
+
+                    final String spelling = mCursor.getString(1);
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            playOrTts(spelling);
+                        }
+                    }, 1000);
+                }
+                else {
+                    mCurState = STATE_IDLE;
+                    mCursor.close();
+                    mCursor = null;
+                }
+            }
+            else {
+                mCurState = STATE_IDLE;
+            }
+        }
+
+        @Override
+        public void onError(String utteranceId) {
+
+        }
+    };
+
+
+    public void stopPlay() {
+        if (mCurState == STATE_PLAY) {
+            mPlayer.stop();
+            mPlayer.release();
+        } else if (mCurState == STATE_TTS) {
+            mTts.stop();
+        }
+        mCurState = STATE_IDLE;
+    }
+
+    public boolean play(String path) {
+        try {
+            mCurState = STATE_PLAY;
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mPlayer.setDataSource(path);
+            mPlayer.prepare();
+            mPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return true;
+    }
+
+    private void playOrTts(String spelling) {
+        try {
+            FileInputStream fis = new FileInputStream (new File(getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3"));
+            fis.close();
+
+            play(spelling);
+        } catch (FileNotFoundException e) {
+
+            mTts.speak(spelling, TextToSpeech.QUEUE_FLUSH, mParams);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

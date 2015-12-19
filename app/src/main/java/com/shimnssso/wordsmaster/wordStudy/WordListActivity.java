@@ -22,6 +22,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Toast;
 
+import com.shimnssso.wordsmaster.Constants;
 import com.shimnssso.wordsmaster.ForegroundService;
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
@@ -152,21 +153,14 @@ public class WordListActivity extends AppCompatActivity {
 
                 switch (msg.what) {
                     case MSG_PLAY_DONE:
-                        Log.d(TAG, "received MSG_PLAY_DONE");
+                        Log.d(TAG, "received MSG_PLAY_DONE. nextPosition:" + msg.arg1);
                         if (!mPlayMode) break;
 
-                        int nextPosition = mAdapter.getCurrentId()+1;
-                        if (nextPosition >= mAdapter.getItemCount()) nextPosition = 0;
+                        int nextPosition = msg.arg1;
+                        mAdapter.setCurrentId(nextPosition);
+                        mAdapter.notifyItemChanged(msg.arg1-1);
+                        mAdapter.notifyItemChanged(msg.arg1);
                         temp.moveTo(nextPosition);
-                        Message m = mHandler.obtainMessage(MSG_PLAY_READY, nextPosition, 0);
-                        mHandler.sendMessageDelayed(m, 50);
-                        break;
-
-                    case MSG_PLAY_READY:
-                        Log.d(TAG, "received MSG_PLAY_READY. position: " + msg.arg1);
-                        if (!mPlayMode) break;
-
-                        temp.play(msg.arg1);
                         break;
 
                     case MSG_CARD_MODE:
@@ -313,16 +307,21 @@ public class WordListActivity extends AppCompatActivity {
 
             case R.id.action_play:
                 if (mPlayMode) {
-                    //item.setTitle(R.string.action_play);
-                    mPlayMode = false;
+                    Intent intent = new Intent(this, ForegroundService.class);
+                    intent.setAction(Constants.Action.STOP);
+                    startService(intent);
 
+                    mPlayMode = false;
                 }
                 else {
-                    //item.setTitle(R.string.action_stop);
-                    mPlayMode = true;
+                    Intent intent = new Intent(this, ForegroundService.class);
+                    intent.setAction(Constants.Action.PLAY_ALL);
+                    intent.putExtra("book", mBookTitle);
+                    intent.putExtra("starred", mStarredMode);
+                    intent.putExtra("id", mAdapter.getCurrentId());
+                    startService(intent);
 
-                    WordInterface temp = (WordInterface)mCurrentFragment;
-                    temp.play(mAdapter.getCurrentId());
+                    mPlayMode = true;
                 }
                 invalidateOptionsMenu();
                 return true;
@@ -354,6 +353,5 @@ public class WordListActivity extends AppCompatActivity {
     public interface WordInterface {
         void setVisible(int type, boolean visible);
         void moveTo(int position);
-        void play(int position);
     }
 }

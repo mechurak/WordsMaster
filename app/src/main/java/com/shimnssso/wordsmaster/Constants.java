@@ -5,5 +5,6 @@ public class Constants {
         public static final String TTS = "com.shimnssso.wordmaster.tts";
         public static final String PLAY = "com.shimnssso.wordmaster.play";
         public static final String STOP = "com.shimnssso.wordmaster.stop";
+        public static final String PLAY_ALL = "com.shimnssso,wordmaster.playall";
     }
 }

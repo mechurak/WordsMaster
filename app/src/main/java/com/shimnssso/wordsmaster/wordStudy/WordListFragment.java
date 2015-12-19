@@ -10,14 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.shimnssso.wordsmaster.R;
-import com.shimnssso.wordsmaster.util.TTSHelper;
 
 public class WordListFragment extends Fragment implements WordListActivity.WordInterface {
     private final static String TAG = "WordListFragment";
 
     WordListActivity mActivity;
     WordAdapter mAdapter;
-    TTSHelper mTTSHelper = null;
     RecyclerView mListView;
 
     @Override
@@ -25,7 +23,6 @@ public class WordListFragment extends Fragment implements WordListActivity.WordI
         View v = inflater.inflate(R.layout.word_list_fragment, container, false);
         mActivity = (WordListActivity)getActivity();
         mAdapter = mActivity.getAdapter();
-        mTTSHelper = TTSHelper.getInstance(getActivity().getApplicationContext());
 
         mListView = (RecyclerView)v.findViewById(R.id.list_word);
         LinearLayoutManager layoutManager=new LinearLayoutManager(mActivity.getApplicationContext());
@@ -59,13 +56,5 @@ public class WordListFragment extends Fragment implements WordListActivity.WordI
     @Override
     public void moveTo(int position) {
         mListView.scrollToPosition(position);
-    }
-
-    @Override
-    public void play(int position) {
-        WordAdapter.ViewHolder holder = (WordAdapter.ViewHolder)mListView.findViewHolderForAdapterPosition(position);
-        if (holder != null) {
-            holder.cardView.performClick();
-        }
     }
 }

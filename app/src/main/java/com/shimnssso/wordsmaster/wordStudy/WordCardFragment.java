@@ -68,6 +68,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
         txt_box.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mAdapter.getItemCount() == 0) return;
                 Cursor c = (Cursor) mAdapter.getItem();
                 String spelling = c.getString(1);
 
@@ -90,6 +91,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
         btn_word_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mAdapter.getItemCount() == 0) return;
                 int mCurrentId = mAdapter.getCurrentId();
                 mCurrentId++;
                 if (mCurrentId >= mAdapter.getItemCount()) mCurrentId = 0;
@@ -101,6 +103,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
         btn_word_prev.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mAdapter.getItemCount() == 0) return;
                 int mCurrentId = mAdapter.getCurrentId();
                 mCurrentId--;
                 if (mCurrentId < 0) mCurrentId = mAdapter.getItemCount() - 1;
@@ -113,6 +116,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
         btn_word_record.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mAdapter.getItemCount() == 0) return;
                 Cursor c = (Cursor) mAdapter.getItem();
                 String spelling = c.getString(1);
                 AudioHelper.startRecord(getActivity().getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3");
@@ -135,6 +139,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
         btn_word_del.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mAdapter.getItemCount() == 0) return;
                 Cursor c = (Cursor) mAdapter.getItem();
                 File file = new File(getActivity().getFilesDir().getAbsolutePath() + File.separator + c.getString(1) + ".mp3");
                 file.delete();
@@ -146,6 +151,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
         btn_word_test.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mAdapter.getItemCount() == 0) return;
                 Intent intent = new Intent(mActivity.getApplicationContext(), OrderTestActivity.class);
                 Cursor c = (Cursor) mAdapter.getItem();
                 intent.putExtra("spelling", c.getString(1));
@@ -159,6 +165,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
         chk_starred.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (mAdapter.getItemCount() == 0) return;
                 mAdapter.setStarred(isChecked);
 
                 Cursor c = (Cursor) mAdapter.getItem();
@@ -181,6 +188,15 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
     }
 
     public void refreshCurrentCard() {
+        if (mAdapter.getItemCount() <= 0) {
+            txt_word_progress.setText("0/0");
+            txt_word_spelling.setText("");
+            txt_word_phonetic.setText("");
+            txt_word_meaning.setText("");
+            btn_word_record.setVisibility(View.GONE);
+            return;
+        }
+
         Cursor c = (Cursor) mAdapter.getItem();
         txt_word_spelling.setText(c.getString(1));
         txt_word_phonetic.setText(c.getString(2));
@@ -200,6 +216,8 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
             txt_word_meaning.setVisibility(View.VISIBLE);
         else
             txt_word_meaning.setVisibility(View.GONE);
+
+        btn_word_record.setVisibility(View.VISIBLE);
 
         chk_starred.setChecked(mAdapter.getStarred());
 
@@ -222,11 +240,6 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
 
     @Override
     public void moveTo(int position) {
-        btn_word_next.performClick();
-    }
-
-    @Override
-    public void play(int position) {
-        txt_box.performClick();
+        refreshCurrentCard();
     }
 }

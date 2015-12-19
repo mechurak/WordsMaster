@@ -21,7 +21,6 @@ import com.shimnssso.wordsmaster.ForegroundService;
 import com.shimnssso.wordsmaster.R;
 import com.shimnssso.wordsmaster.data.DbHelper;
 import com.shimnssso.wordsmaster.data.DbMeta;
-import com.shimnssso.wordsmaster.util.TTSHelper;
 
 import java.io.File;
 import java.io.FileInputStream;
