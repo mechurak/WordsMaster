@@ -92,10 +92,10 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
             @Override
             public void onClick(View v) {
                 if (mAdapter.getItemCount() == 0) return;
-                int mCurrentId = mAdapter.getCurrentId();
+                int mCurrentId = mAdapter.getCurrentPosition();
                 mCurrentId++;
                 if (mCurrentId >= mAdapter.getItemCount()) mCurrentId = 0;
-                mAdapter.setCurrentId(mCurrentId);
+                mAdapter.setCurrentPosition(mCurrentId);
                 refreshCurrentCard();
             }
         });
@@ -104,10 +104,10 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
             @Override
             public void onClick(View v) {
                 if (mAdapter.getItemCount() == 0) return;
-                int mCurrentId = mAdapter.getCurrentId();
+                int mCurrentId = mAdapter.getCurrentPosition();
                 mCurrentId--;
                 if (mCurrentId < 0) mCurrentId = mAdapter.getItemCount() - 1;
-                mAdapter.setCurrentId(mCurrentId);
+                mAdapter.setCurrentPosition(mCurrentId);
                 refreshCurrentCard();
             }
         });
@@ -202,7 +202,7 @@ public class WordCardFragment extends Fragment implements WordListActivity.WordI
         txt_word_phonetic.setText(c.getString(2));
         txt_word_meaning.setText(c.getString(3));
 
-        txt_word_progress.setText( (mAdapter.getCurrentId()+1) + "/" + mAdapter.getItemCount() );
+        txt_word_progress.setText( (mAdapter.getCurrentPosition()+1) + "/" + mAdapter.getItemCount() );
 
         if (mAdapter.getVisible(WordListActivity.TYPE_SPELLING))
             txt_word_spelling.setVisibility(View.VISIBLE);

@@ -32,8 +32,8 @@ public class WordListFragment extends Fragment implements WordListActivity.WordI
         mListView.setAdapter(mAdapter);
         Log.i(TAG, "setAdapter");
 
-        //mListView.smoothScrollToPosition(mAdapter.getCurrentId());
-        mListView.scrollToPosition(mAdapter.getCurrentId());
+        //mListView.smoothScrollToPosition(mAdapter.getCurrentPosition());
+        mListView.scrollToPosition(mAdapter.getCurrentPosition());
         return v;
     }
 
@@ -45,11 +45,11 @@ public class WordListFragment extends Fragment implements WordListActivity.WordI
         /*
         int first = mListView.getFirstVisiblePosition();
         int last = mListView.getLastVisiblePosition();
-        int mPrevPosition = mAdapter.getCurrentId();
+        int mPrevPosition = mAdapter.getCurrentPosition();
         if (mPrevPosition < first || last < mPrevPosition) {
-            mAdapter.setCurrentId(first+1);
+            mAdapter.setCurrentPosition(first+1);
         }
-        mListView.setSelection(mAdapter.getCurrentId());
+        mListView.setSelection(mAdapter.getCurrentPosition());
         */
     }
 

@@ -146,6 +146,7 @@ public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
 
                     Intent intent = new Intent(mContext, ForegroundService.class);
                     intent.putExtra("spelling", spelling);
+                    intent.putExtra("position", position);
                     try {
                         FileInputStream fis = new FileInputStream (new File(mContext.getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3"));
                         fis.close();
@@ -202,10 +203,10 @@ public class WordAdapter extends RecyclerView.Adapter<WordAdapter.ViewHolder>{
         }
     }
 
-    public void setCurrentId(int position) {
+    public void setCurrentPosition(int position) {
         mCurPosition = position;
     }
-    public int getCurrentId() {
+    public int getCurrentPosition() {
         return mCurPosition;
     }
 

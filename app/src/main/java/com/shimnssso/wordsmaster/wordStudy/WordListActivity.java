@@ -38,7 +38,7 @@ public class WordListActivity extends AppCompatActivity {
     public final static int TYPE_MEANING = 102;
 
     public final static int MSG_PLAY_DONE = 1000;
-    public final static int MSG_PLAY_READY = 1001;
+    public final static int MSG_PLAY_ALL_FINISHED = 1001;
     public final static int MSG_CARD_MODE = 1010;
     public final static int MSG_TEST_MODE = 1011;
 
@@ -157,10 +157,18 @@ public class WordListActivity extends AppCompatActivity {
                         if (!mPlayMode) break;
 
                         int nextPosition = msg.arg1;
-                        mAdapter.setCurrentId(nextPosition);
+                        mAdapter.setCurrentPosition(nextPosition);
                         mAdapter.notifyItemChanged(msg.arg1-1);
                         mAdapter.notifyItemChanged(msg.arg1);
                         temp.moveTo(nextPosition);
+                        break;
+
+                    case MSG_PLAY_ALL_FINISHED:
+                        Log.d(TAG, "received MSG_PLAY_ALL_FINISHED");
+                        if (!mPlayMode) break;
+
+                        mPlayMode = false;
+                        invalidateOptionsMenu();
                         break;
 
                     case MSG_CARD_MODE:
@@ -318,7 +326,7 @@ public class WordListActivity extends AppCompatActivity {
                     intent.setAction(Constants.Action.PLAY_ALL);
                     intent.putExtra("book", mBookTitle);
                     intent.putExtra("starred", mStarredMode);
-                    intent.putExtra("id", mAdapter.getCurrentId());
+                    intent.putExtra("position", mAdapter.getCurrentPosition());
                     startService(intent);
 
                     mPlayMode = true;

@@ -49,26 +49,51 @@ public class ForegroundService extends Service implements MediaPlayer.OnCompleti
         }
         switch (action) {
             case Constants.Action.TTS: {
-                if (mCurState != STATE_IDLE) stopPlay();
-                String spelling = intent.getStringExtra("spelling");
-                Log.d(TAG, "action: " + action + ", spelling: " + spelling);
+                if (mCurState == STATE_PLAY_ALL && mCursor != null) {
+                    stopPlay();
+                    int position = intent.getIntExtra("position", -1);
+                    if (position != -1) {
+                        mCursor.moveToPosition(position);
+                        String spelling = mCursor.getString(1);
+                        playOrTts(spelling);
+                    }
+                }
+                else {
+                    if (mCurState != STATE_IDLE) stopPlay();
+                    String spelling = intent.getStringExtra("spelling");
+                    Log.d(TAG, "action: " + action + ", spelling: " + spelling);
 
-                mTts.speak(spelling, TextToSpeech.QUEUE_FLUSH, mParams);
+                    mCurState = STATE_TTS;
+                    mTts.speak(spelling, TextToSpeech.QUEUE_FLUSH, mParams);
+                }
                 break;
             }
             case Constants.Action.PLAY: {
-                if (mCurState != STATE_IDLE) stopPlay();
-                String spelling = intent.getStringExtra("spelling");
-                Log.d(TAG, "action: " + action + ", spelling: " + spelling);
+                if (mCurState == STATE_PLAY_ALL && mCursor != null) {
+                    stopPlay();
+                    int position = intent.getIntExtra("position", -1);
+                    if (position != -1) {
+                        mCursor.moveToPosition(position);
+                        String spelling = mCursor.getString(1);
+                        playOrTts(spelling);
+                    }
+                }
+                else {
+                    if (mCurState != STATE_IDLE) stopPlay();
+                    String spelling = intent.getStringExtra("spelling");
+                    Log.d(TAG, "action: " + action + ", spelling: " + spelling);
 
-                play(getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3");
+                    mCurState = STATE_PLAY;
+                    play(getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3");
+                }
                 break;
             }
             case Constants.Action.PLAY_ALL: {
                 if (mCurState != STATE_IDLE) stopPlay();
                 String book = intent.getStringExtra("book");
                 boolean starred = intent.getBooleanExtra("starred", false);
-                int id = intent.getIntExtra("id", 0);
+                int position = intent.getIntExtra("position", 0);
+                Log.d(TAG, "book: " + book + ", starred: " + starred + ", position: " + position);
 
                 if (starred)
                     mCursor = DbHelper.getInstance(this).getStarredWordList(book);
@@ -77,9 +102,10 @@ public class ForegroundService extends Service implements MediaPlayer.OnCompleti
 
                 mCurState = STATE_PLAY_ALL;
 
-                mCursor.moveToPosition(id);
+                mCursor.moveToPosition(position);
                 String spelling = mCursor.getString(1);
                 playOrTts(spelling);
+                break;
             }
 
             case Constants.Action.STOP: {
@@ -204,6 +230,8 @@ public class ForegroundService extends Service implements MediaPlayer.OnCompleti
                 }, 1000);
             }
             else {
+                WordListActivity.mHandler.sendEmptyMessage(WordListActivity.MSG_PLAY_ALL_FINISHED);
+
                 mCursor.close();
                 mCursor = null;
                 mCurState = STATE_IDLE;
@@ -248,12 +276,14 @@ public class ForegroundService extends Service implements MediaPlayer.OnCompleti
         public void onDone(String utteranceId) {
             Log.d(TAG, "TTS onDone. " + utteranceId);
             if (mCurState == STATE_PLAY_ALL) {
+                Log.d(TAG, "mCurState == STATE_PLAY_ALL. ");
                 if (mCursor.moveToNext()) {
 
                     Message m = mHandler.obtainMessage(WordListActivity.MSG_PLAY_DONE, mCursor.getPosition(), 0);
                     WordListActivity.mHandler.sendMessage(m);
 
                     final String spelling = mCursor.getString(1);
+                    Log.d(TAG, "spelling: " + spelling);
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -262,6 +292,8 @@ public class ForegroundService extends Service implements MediaPlayer.OnCompleti
                     }, 1000);
                 }
                 else {
+                    WordListActivity.mHandler.sendEmptyMessage(WordListActivity.MSG_PLAY_ALL_FINISHED);
+
                     mCurState = STATE_IDLE;
                     mCursor.close();
                     mCursor = null;
@@ -274,7 +306,7 @@ public class ForegroundService extends Service implements MediaPlayer.OnCompleti
 
         @Override
         public void onError(String utteranceId) {
-
+            Log.d(TAG, "TTS onError. " + utteranceId);
         }
     };
 
@@ -291,7 +323,6 @@ public class ForegroundService extends Service implements MediaPlayer.OnCompleti
 
     public boolean play(String path) {
         try {
-            mCurState = STATE_PLAY;
             mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mPlayer.setDataSource(path);
             mPlayer.prepare();
@@ -303,6 +334,7 @@ public class ForegroundService extends Service implements MediaPlayer.OnCompleti
     }
 
     private void playOrTts(String spelling) {
+        Log.d(TAG, "playOrTts. spelling: " + spelling);
         try {
             FileInputStream fis = new FileInputStream (new File(getFilesDir().getAbsolutePath() + File.separator + spelling + ".mp3"));
             fis.close();
