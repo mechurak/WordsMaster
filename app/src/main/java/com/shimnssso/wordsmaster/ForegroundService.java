@@ -266,7 +266,7 @@ public class ForegroundService extends Service implements MediaPlayer.OnCompleti
             }
             else
             {
-                Toast.makeText(getApplicationContext(), "Ready to Speak", Toast.LENGTH_LONG).show();
+                //Toast.makeText(getApplicationContext(), "Ready to Speak", Toast.LENGTH_LONG).show();
                 mTts.setOnUtteranceProgressListener(mListener);
             }
         }

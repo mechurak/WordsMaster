@@ -5,13 +5,19 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteStatement;
 import android.util.Log;
 
 import com.shimnssso.wordsmaster.BookAdapter;
 import com.shimnssso.wordsmaster.data.DbMeta.GlobalTableMeta;
 import com.shimnssso.wordsmaster.data.DbMeta.WordTableMeta;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 
 public class DbHelper extends SQLiteOpenHelper {
@@ -22,7 +28,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     public static DbHelper getInstance(Context context) {
         // for debug
-        //context.deleteDatabase(DbMeta.DATABASE_NAME);
+        context.deleteDatabase(DbMeta.DATABASE_NAME);
 
         if (mInstance == null) {
             mInstance = new DbHelper(context);
@@ -60,8 +66,27 @@ public class DbHelper extends SQLiteOpenHelper {
                         + "UNIQUE(" + WordTableMeta.SPELLING + ", " + WordTableMeta.CATEGORY + ")"
                         + " )"
         );
-        for(String[] word : DbMeta.tempBook) {
-            db.execSQL( "INSERT INTO " + WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?,null)", word);
+
+        try {
+            InputStream is = mContext.getAssets().open("data.txt");
+            InputStreamReader isr = new InputStreamReader(is);
+            BufferedReader br = new BufferedReader(isr);
+            String line;
+
+            String sql = "INSERT INTO " + WordTableMeta.TABLE_NAME + " VALUES (null,?,?,?,?,?,null)";
+            SQLiteStatement statement = db.compileStatement(sql);
+
+            while ((line = br.readLine()) != null) {
+                String[] row = line.split("\\t");
+                Log.d(TAG, Arrays.toString(row));
+
+                statement.clearBindings();
+                statement.bindAllArgsAsStrings(row);
+                statement.executeInsert();
+            }
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
