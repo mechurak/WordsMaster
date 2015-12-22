@@ -28,7 +28,7 @@ public class DbHelper extends SQLiteOpenHelper {
 
     public static DbHelper getInstance(Context context) {
         // for debug
-        context.deleteDatabase(DbMeta.DATABASE_NAME);
+        //context.deleteDatabase(DbMeta.DATABASE_NAME);
 
         if (mInstance == null) {
             mInstance = new DbHelper(context);

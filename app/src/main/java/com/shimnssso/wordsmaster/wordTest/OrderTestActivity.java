@@ -48,6 +48,7 @@ public class OrderTestActivity extends AppCompatActivity{
     CheckBox chk_meaning;
 
     private boolean mSpellingMode = false;
+    private boolean mPhoneticAvailable = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +98,17 @@ public class OrderTestActivity extends AppCompatActivity{
         mMeaning = intent.getStringExtra("meaning");
         Log.i(TAG, "word: " + mSpelling);
 
-        mAdapter = new WordBlockAdapter(OrderTestActivity.this, mPhonetic, false);
+        if (mPhonetic == null || mPhonetic.length() < 2) {
+            mAdapter = new WordBlockAdapter(OrderTestActivity.this, mSpelling, false);
+            mSpellingMode = true;
+            mPhoneticAvailable = false;
+            invalidateOptionsMenu();
+        }
+        else {
+            mAdapter = new WordBlockAdapter(OrderTestActivity.this, mPhonetic, false);
+            mSpellingMode = false;
+            mPhoneticAvailable = true;
+        }
 
         mMixedRecyclerView = (RecyclerView)findViewById(R.id.list_mixed);
 
@@ -190,6 +201,9 @@ public class OrderTestActivity extends AppCompatActivity{
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.test_order, menu);
+        if (!mPhoneticAvailable) {
+            menu.removeItem(R.id.action_order_type);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -222,14 +236,34 @@ public class OrderTestActivity extends AppCompatActivity{
 
             case R.id.action_order_type:
                 if (mSpellingMode) {
+                    if (mPhonetic == null || mPhonetic.length()<2) {
+                        Log.e(TAG, "ignore unset mSpellingMode");
+                        return true;
+                    }
                     item.setTitle(R.string.action_order_type_spelling);
                     mAdapter = new WordBlockAdapter(OrderTestActivity.this, mPhonetic, false);
                     mSpellingMode = false;
-
                 }
                 else {
                     item.setTitle(R.string.action_order_type_phonetic);
-                    mAdapter = new WordBlockAdapter(OrderTestActivity.this, mSpelling, true);
+
+                    boolean isChiness = false;
+                    for(int i = 0 ; i < mSpelling.length() ; i++) {
+                        char ch = mSpelling.charAt(i);
+                        Character.UnicodeBlock unicodeBlock = Character.UnicodeBlock.of(ch);
+
+                        if (Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(unicodeBlock) ||
+                                Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A.equals(unicodeBlock) ||
+                                Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B.equals(unicodeBlock) ||
+                                Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS.equals(unicodeBlock) ||
+                                Character.UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT.equals(unicodeBlock)) {
+                            isChiness = true;
+                            break;
+                        }
+                    }
+                    Log.d(TAG, "isChiness: " + isChiness + ". " + mSpelling);
+
+                    mAdapter = new WordBlockAdapter(OrderTestActivity.this, mSpelling, isChiness);
                     mSpellingMode = true;
                 }
 
